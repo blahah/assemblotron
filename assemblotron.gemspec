@@ -8,13 +8,13 @@ Gem::Specification.new do |gem|
   gem.email         = "rds45@cam.ac.uk"
   gem.homepage      = 'https://github.com/blahah/assemblotron'
   gem.summary       = %q{ automatically produce *optimal* assemblies from DNA/RNA sequencing reads }
-  gem.version       = Biopsy::VERSION::STRING.dup
+  gem.version       = Assemblotron::VERSION::STRING.dup
 
   gem.files = Dir['Rakefile', '{lib,test}/**/*', 'README*', 'LICENSE*']
   gem.require_paths = %w[ lib ]
 
   gem.add_dependency 'rake', '~> 10.1.0'
-  gem.add_dependency 'biopsy', '~> 0.1.0.alpha'
+  gem.add_dependency 'biopsy'
 
   gem.add_development_dependency 'turn'
   gem.add_development_dependency 'simplecov'

@@ -1,0 +1,20 @@
+---
+:input_filetypes:
+- :min: 2
+  :allowed_extensions:
+  - .fastq
+  - .fq
+  - .fasta
+  - .fa
+:output_filetypes:
+- :n: 1
+  :allowed_extensions:
+  - .fa
+  - .fasta
+  - .fas
+  - .scafSeq
+  - .config
+:objectives:
+- bad_read_mappings
+- reciprocal_best_annotation
+- unexpressed_transcripts
