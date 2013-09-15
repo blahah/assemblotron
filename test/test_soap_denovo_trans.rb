@@ -5,8 +5,9 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
   context "SoapDenovoTrans constructor" do
 
     setup do
-      @d = Biopsy::Domain.new
-      @t = Biopsy::Target.new @d
+      @c = Assemblotron::Controller.new
+      @c.init_settings
+      @t = Biopsy::Target.new
       @t.load_by_name 'soap_denovo_trans'
       @s = SoapDenovoTrans.new
       @params = { 
