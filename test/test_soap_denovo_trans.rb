@@ -22,20 +22,6 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
       }
     end
 
-    should "generate a valid config file" do
-      valid = %Q{max_rd_len=20000
-[LIB]
-avg_ins=200
-reverse_seq=0
-asm_flags=3
-rank=2
-q1=l.fq
-q2=r.fq
-}
-      @s.setup_soap(@params)
-      assert_equal valid, File.open('soapdt.config').read
-    end
-
     should "construct a valid command" do
       params = {
         :K => 1,

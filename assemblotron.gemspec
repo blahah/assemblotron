@@ -14,8 +14,9 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w[ lib ]
 
   gem.add_dependency 'rake', '~> 10.1.0'
-  gem.add_dependency 'biopsy'
+  gem.add_dependency 'biopsy', '~> 0.0.1.alpha'
   gem.add_dependency 'trollop', '~> 2.0'
+  gem.add_dependency 'transrate', '~> 0.0.1.alpha'
 
   gem.add_development_dependency 'turn'
   gem.add_development_dependency 'simplecov'

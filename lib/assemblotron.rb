@@ -1,7 +1,11 @@
 require "biopsy"
 require "logger"
+require "transrate"
+require "assemblotron/version"
 
 module Assemblotron
+
+  include Transrate
 
   class Controller
   

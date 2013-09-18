@@ -5,25 +5,16 @@ class SoapDenovoTrans
   end
 
   def run params
+    # run the assembly
     self.setup_soap(params) if @count == 0
     self.run_soap params
     @count += 1
-  end
-
-  # soapdt.config file only generated on first run
-  def setup_soap params
-    # make config file
-    rf = params[:readformat] == 'fastq' ? 'q' : 'f'
-    File.open("soapdt.config", "w") do |conf|
-      conf.puts "max_rd_len=20000"
-      conf.puts "[LIB]"
-      conf.puts "avg_ins=#{params[:insertsize]}"
-      conf.puts "reverse_seq=0"
-      conf.puts "asm_flags=3"
-      conf.puts "rank=2"
-      conf.puts "#{rf}1=#{params[:l]}"
-      conf.puts "#{rf}2=#{params[:r]}"
-    end
+    # retrieve output
+    scaffolds = Dir['*.scafSeq']
+    return nil if scaffolds.empty?
+    scaffolds = scaffolds.first
+    # return a Transrater
+    Transrater.new scaffolds
   end
 
   def include_defaults params
