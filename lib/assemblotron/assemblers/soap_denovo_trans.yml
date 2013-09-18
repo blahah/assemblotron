@@ -4,16 +4,10 @@ shortname: sdt
 output:
   assembly: '*.scafSeq'
 parameters:
-  p:
-    type: integer
-    opt: false
-    default: 4
-  l1:
+  config:
     type: string
     opt: false
-  r1:
-    type: string
-    opt: false
+    desc: 'Path to SoapDenovoTrans config file'
   K:
     type: integer
     opt: true

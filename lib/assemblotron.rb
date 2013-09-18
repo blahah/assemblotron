@@ -74,11 +74,21 @@ module Assemblotron
 
     # Return an array of the names of available assemblers
     def assemblers
-      @assemblers.map { |t| t.name } 
+      a = []
+      @assemblers.each do |t|
+        a << t.name
+        a << t.shortname if t.shortname
+      end
+      a
     end # assemblers
 
     def list_assemblers
-
+      puts "Available assemblers:\n\n"
+      @assemblers.each do |a| 
+        p = " - #{a.name}"
+        p += " (#{a.shortname})" if a.respond_to? :shortname
+        puts p
+      end
     end # list_assemblers
 
     def run_options
@@ -86,11 +96,49 @@ module Assemblotron
     end # run_options
 
     def options_for_assembler assembler
+      a = self.get_assembler assembler
+      parser = Trollop::Parser.new do
+          banner <<-EOS
+Assemblotron: fast, automated, optimal transcriptome assembly
 
+Options for assembler #{assembler}
+EOS
+        a.options.each_pair do |param, opts|
+          opt param, 
+              opts[:desc], 
+              :type => Controller.class_from_type(opts[:type])
+        end
+      end
+      Trollop::with_standard_exception_handling parser do
+        parser.parse ARGV
+        raise Trollop::HelpNeeded if ARGV.empty? # show help screen
+      end
     end # options_for_assembler
 
-    def run cmd
+    def get_assembler assembler
+      ret = @assemblers.find do |a|
+        a.name == assembler || 
+        a.shortname == assembler
+      end
+      raise "couldn't find assembler #{assembler}" if ret.nil?
+      ret
+    end
 
+    def self.class_from_type type
+      case type
+      when 'string'
+        String
+      when 'int'
+        Integer
+      when 'float'
+        Float
+      end
+    end
+
+    def run assembler
+      a = self.get_assembler assembler
+      e = Biopsy::Experiment.new a
+      res = e.run
     end # run
 
   end # Controller

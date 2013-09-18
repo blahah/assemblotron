@@ -10,17 +10,18 @@ SUB_COMMANDS = %w(list run) + controller.assemblers
 assembler_cmd_list = controller.assemblers.map{ |name|
   "#{name} - show options for #{name}"
   }.join("\n")
-global_opts = Trollop::options do
+parser = Trollop::Parser.new do
   banner <<-EOS
 Assemblotron: fast, automated, optimal transcriptome assembly
 
 Usage:
-  assemblotron [global options] [command] [command-specific options]
+  atron [global options] [command] [command-specific options]
 
 Commands:
 
-list      - list the available assemblers
-run       - run optimisation for an assembler
+list        - list the available assemblers
+run         - run optimisation for an assembler
+<assembler> - show options for assembler
 
 Global options:
 EOS
@@ -44,14 +45,21 @@ EOS
   stop_on SUB_COMMANDS
 end
 
+global_opts = Trollop::with_standard_exception_handling parser do
+  parser.parse ARGV
+  raise Trollop::HelpNeeded if ARGV.empty? # show help screen
+end
+
 # subcommand parsing
 cmd = ARGV.shift
-cmd_opts = case cmd
-when "list"
+assembler = nil
+if cmd.nil?
+  opts 
+elsif cmd == "list"
   controller.list_assemblers
-when "run"
-  controller.run_options
-when controller.assemblers.include?(cmd)
+elsif cmd == "run"
+  assembler = ARGV.shift
+elsif controller.assemblers.include?(cmd)
   controller.options_for_assembler cmd
 else
   Trollop::die "unknown subcommand #{cmd.inspect}"
@@ -59,5 +67,4 @@ end
 
 # run command
 controller.global_opts = global_opts
-controller.cmd_opts = cmd_opts
-controller.run cmd
+controller.run assembler

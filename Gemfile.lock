@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     assemblotron (0.0.0)
-      biopsy (= 0.1.1.alpha)
+      biopsy (= 0.1.5.alpha)
       rake (~> 10.1.0)
       transrate (= 0.0.1)
       trollop (~> 2.0)
@@ -13,7 +13,7 @@ GEM
     ansi (1.4.3)
     bettersam (0.0.1.alpha)
     bio (1.4.3.0001)
-    biopsy (0.1.1.alpha)
+    biopsy (0.1.5.alpha)
       rake (~> 10.1.0)
       rubystats
       statsample
