@@ -112,7 +112,6 @@ EOS
         end
       end
       Trollop::with_standard_exception_handling parser do
-        pp ARGV
         raise Trollop::HelpNeeded if ARGV.empty? # show help screen
         parser.parse ARGV
       end
@@ -139,11 +138,8 @@ EOS
     end
 
     def run assembler
-      if @assembler_opts.has_key? :reference
-        @assembler_opts = Transrate::Assembly.new @assembler_opts[:reference]
-      end
+      @assembler_opts[:reference] = Transrate::Assembly.new(@global_opts[:reference])
       a = self.get_assembler assembler
-      pp @assembler_opts
       e = Biopsy::Experiment.new a, @assembler_opts
       res = e.run
     end # run

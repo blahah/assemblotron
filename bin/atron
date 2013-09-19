@@ -7,9 +7,6 @@ controller = Assemblotron::Controller.new
 
 # global option parsing
 SUB_COMMANDS = %w(list run) + controller.assemblers
-assembler_cmd_list = controller.assemblers.map{ |name|
-  "#{name} - show options for #{name}"
-  }.join("\n")
 parser = Trollop::Parser.new do
   banner <<-EOS
 #{Assemblotron::Controller.header}
@@ -24,6 +21,9 @@ run         - run optimisation for an assembler
 
 Global options:
 EOS
+  opt :reference, "Path to reference proteome file in FASTA format",
+                :required => true,
+                :type => String
   opt :threads, "Number of threads to use", 
                 :short => "-t", 
                 :default => 4
@@ -45,8 +45,9 @@ EOS
 end
 
 global_opts = Trollop::with_standard_exception_handling parser do
-  parser.parse ARGV
+  result = parser.parse ARGV
   raise Trollop::HelpNeeded if ARGV.empty? # show help screen
+  result
 end
 
 # subcommand parsing
