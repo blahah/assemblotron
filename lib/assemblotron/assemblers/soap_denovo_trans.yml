@@ -8,6 +8,23 @@ parameters:
     type: string
     opt: false
     desc: 'Path to SoapDenovoTrans config file'
+    required: true
+  left:
+    type: string
+    opt: false
+    desc: 'Path to left reads (for assembly quality analysis)'
+  right:
+    type: string
+    opt: false
+    desc: 'Path to left reads (for assembly quality analysis)'
+  insertsize:
+    type: integer
+    opt: false
+    desc: 'Insert size of sequenced fragments'
+  insertsd:
+    type: integer
+    opt: false
+    desc: 'Standard deviation of the insert size'
   K:
     type: integer
     opt: true

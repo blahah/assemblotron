@@ -139,7 +139,9 @@ EOS
     end
 
     def run assembler
-      p assembler
+      if @assembler_opts.has_key? :reference
+        @assembler_opts = Transrate::Assembly.new @assembler_opts[:reference]
+      end
       a = self.get_assembler assembler
       pp @assembler_opts
       e = Biopsy::Experiment.new a, @assembler_opts

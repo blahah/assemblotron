@@ -1,3 +1,5 @@
+require 'transrate'
+
 class SoapDenovoTrans
 
   include Which
@@ -15,15 +17,17 @@ class SoapDenovoTrans
     # retrieve output
     scaffolds = Dir['*.scafSeq']
     return nil if scaffolds.empty?
+    puts scaffolds
     scaffolds = scaffolds.first 
     # return a Transrater
-    Transrater.new scaffolds
+    Transrate::Transrater.new(scaffolds, params[:reference], params[:left], params[:right])
   end
 
   def include_defaults params
     defaults = {
       :K => 23,
-      :p => 8,
+      :threads => 8,
+      :out => 'sdt',
       :d => 0,
       :e => 2,
       :M => 1,
@@ -37,11 +41,11 @@ class SoapDenovoTrans
 
   def construct_command(params)
     params = self.include_defaults params
-    cmd = "#{@path}"
+    cmd = "#{@path} all"
     # generic
-    cmd += " -s soapdt.config" # config file
-    cmd += " -a #{params[:memory]}" # memory assumption
-    cmd += " -o #{params[:out]}" # output directory
+    cmd += " -s #{params[:config]}" # config file
+    cmd += " -a #{params[:memory]}" if params.has_key? :memory # memory assumption
+    cmd += " -o #{params[:out]}" if params.has_key? :out # output directory
     cmd += " -p #{params[:threads]}" # number of threads
     # specific
     cmd += " -K #{params[:K]}" # kmer size
@@ -57,6 +61,7 @@ class SoapDenovoTrans
   # runs SOAPdt script
   def run_soap(params)
     cmd = self.construct_command(params)
+    puts cmd
     `#{cmd} > #{@count}.log`
   end
 
