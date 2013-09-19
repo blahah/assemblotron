@@ -12,13 +12,12 @@ assembler_cmd_list = controller.assemblers.map{ |name|
   }.join("\n")
 parser = Trollop::Parser.new do
   banner <<-EOS
-Assemblotron: fast, automated, optimal transcriptome assembly
+#{Assemblotron::Controller.header}
 
 Usage:
   atron [global options] [command] [command-specific options]
 
 Commands:
-
 list        - list the available assemblers
 run         - run optimisation for an assembler
 <assembler> - show options for assembler
@@ -53,18 +52,22 @@ end
 # subcommand parsing
 cmd = ARGV.shift
 assembler = nil
+assmebler_opts = nil
 if cmd.nil?
   opts 
 elsif cmd == "list"
   controller.list_assemblers
+  exit
 elsif cmd == "run"
   assembler = ARGV.shift
 elsif controller.assemblers.include?(cmd)
-  controller.options_for_assembler cmd
+  assembler = cmd
+  assembler_opts = controller.options_for_assembler cmd
 else
   Trollop::die "unknown subcommand #{cmd.inspect}"
 end
 
 # run command
 controller.global_opts = global_opts
+controller.assembler_opts = assembler_opts
 controller.run assembler

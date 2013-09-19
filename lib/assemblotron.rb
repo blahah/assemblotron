@@ -2,6 +2,7 @@ require "biopsy"
 require "logger"
 require "transrate"
 require "assemblotron/version"
+require "pp"
 
 module Assemblotron
 
@@ -10,7 +11,7 @@ module Assemblotron
   class Controller
   
     attr_accessor :global_opts
-    attr_accessor :cmd_opts
+    attr_accessor :assembler_opts
 
     # Return a new Assemblotron
     def initialize
@@ -21,6 +22,10 @@ module Assemblotron
       @assemblers = []
       self.load_assemblers
     end # initialize
+
+    def self.header
+      "Assemblotron v#{VERSION::STRING.dup}"
+    end
 
     # Initialise the Biopsy settings
     def init_settings
@@ -83,7 +88,8 @@ module Assemblotron
     end # assemblers
 
     def list_assemblers
-      puts "Available assemblers:\n\n"
+      puts Controller.header
+      puts "\nAvailable assemblers:"
       @assemblers.each do |a| 
         p = " - #{a.name}"
         p += " (#{a.shortname})" if a.respond_to? :shortname
@@ -91,15 +97,11 @@ module Assemblotron
       end
     end # list_assemblers
 
-    def run_options
-
-    end # run_options
-
     def options_for_assembler assembler
       a = self.get_assembler assembler
       parser = Trollop::Parser.new do
           banner <<-EOS
-Assemblotron: fast, automated, optimal transcriptome assembly
+#{Controller.header}
 
 Options for assembler #{assembler}
 EOS
@@ -110,8 +112,9 @@ EOS
         end
       end
       Trollop::with_standard_exception_handling parser do
-        parser.parse ARGV
+        pp ARGV
         raise Trollop::HelpNeeded if ARGV.empty? # show help screen
+        parser.parse ARGV
       end
     end # options_for_assembler
 
@@ -136,8 +139,10 @@ EOS
     end
 
     def run assembler
+      p assembler
       a = self.get_assembler assembler
-      e = Biopsy::Experiment.new a
+      pp @assembler_opts
+      e = Biopsy::Experiment.new a, @assembler_opts
       res = e.run
     end # run
 

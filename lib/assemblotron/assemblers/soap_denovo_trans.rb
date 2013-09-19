@@ -1,18 +1,21 @@
 class SoapDenovoTrans
 
+  include Which
+
   def initialize
     @count = 0
+    @path = which('SOAPdenovo-Trans-127mer')
+    raise "SOAPdenovo-Trans-127mer was not in the PATH" if @path.empty?
+    @path = @path.first
   end
 
   def run params
     # run the assembly
-    self.setup_soap(params) if @count == 0
     self.run_soap params
-    @count += 1
     # retrieve output
     scaffolds = Dir['*.scafSeq']
     return nil if scaffolds.empty?
-    scaffolds = scaffolds.first
+    scaffolds = scaffolds.first 
     # return a Transrater
     Transrater.new scaffolds
   end
@@ -34,7 +37,7 @@ class SoapDenovoTrans
 
   def construct_command(params)
     params = self.include_defaults params
-    cmd = "#{params[:path]} all"
+    cmd = "#{@path}"
     # generic
     cmd += " -s soapdt.config" # config file
     cmd += " -a #{params[:memory]}" # memory assumption
