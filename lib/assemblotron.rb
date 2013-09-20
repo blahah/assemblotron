@@ -89,7 +89,16 @@ module Assemblotron
 
     def list_assemblers
       puts Controller.header
-      puts "\nAvailable assemblers:"
+      puts <<-EOS
+
+Available assemblers are listed below.
+Shortnames are shown in brackets if available.
+
+Usage:
+atron [global options] <assembler> [assembler options]
+
+Assemblers:
+EOS
       @assemblers.each do |a| 
         p = " - #{a.name}"
         p += " (#{a.shortname})" if a.respond_to? :shortname
