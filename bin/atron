@@ -21,9 +21,6 @@ run         - run optimisation for an assembler
 
 Global options:
 EOS
-  opt :reference, "Path to reference proteome file in FASTA format",
-                :required => true,
-                :type => String
   opt :threads, "Number of threads to use", 
                 :short => "-t", 
                 :default => 4
