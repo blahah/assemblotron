@@ -105,6 +105,9 @@ module Assemblotron
 
 Options for assembler #{assembler}
 EOS
+        opt :reference, "Path to reference proteome file in FASTA format",
+             :type => String,
+             :required => true
         a.options.each_pair do |param, opts|
           opt param, 
               opts[:desc], 
@@ -138,7 +141,7 @@ EOS
     end
 
     def run assembler
-      @assembler_opts[:reference] = Transrate::Assembly.new(@global_opts[:reference])
+      @assembler_opts[:reference] = Transrate::Assembly.new(@assembler_opts[:reference])
       a = self.get_assembler assembler
       e = Biopsy::Experiment.new a, @assembler_opts
       res = e.run
