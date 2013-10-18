@@ -34,6 +34,6 @@ Please don't report issues or request documentation until we are ready for beta 
 
 ## Expectations for imminent versions
 
-* **v0.1.0**: allow optimisation of SoapDenovoTrans, VelvetOases
+* **v0.1.0**: allow optimisation of SoapDenovoTrans, VelvetOases (due 10th November 2013)
 * **v0.2.0**: add Abyss, SGA and ReadJoiner
 * **v0.3.0**: allow optimising pipelines
