@@ -4,7 +4,7 @@ PATH
     assemblotron (0.0.1)
       biopsy (= 0.1.6.alpha)
       rake (~> 10.1.0)
-      transrate (= 0.0.9)
+      transrate (= 0.0.11)
       trollop (~> 2.0)
 
 GEM
@@ -83,7 +83,7 @@ GEM
     thor (0.18.1)
     threach (0.2.0)
     tins (0.9.0)
-    transrate (0.0.9)
+    transrate (0.0.11)
       bettersam (~> 0.0.1.alpha)
       bio
       rake (~> 10.1.0)

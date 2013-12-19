@@ -13,14 +13,30 @@ class SoapDenovoTrans
 
   def run params
     # run the assembly
+    self.setup_soap params
     self.run_soap params
     # retrieve output
     scaffolds = Dir['*.scafSeq']
-    return nil if scaffolds.empty?
-    puts scaffolds
+    return nil if scaffolds.empty? 
+    # puts scaffolds
     scaffolds = scaffolds.first 
     # return a Transrater
     Transrate::Transrater.new(scaffolds, params[:reference], params[:left], params[:right])
+  end
+
+  # soapdt.config file only generated on first run
+  def setup_soap params
+    # make config file
+    File.open("soapdt.config", "w") do |conf|
+      conf.puts "max_rd_len=20000"
+      conf.puts "[LIB]"
+      conf.puts "avg_ins=#{params[:insertsize]}"
+      conf.puts "reverse_seq=0"
+      conf.puts "asm_flags=3"
+      conf.puts "rank=2"
+      conf.puts "q1=#{params[:left]}"
+      conf.puts "q2=#{params[:right]}"
+    end
   end
 
   def include_defaults params
@@ -36,16 +52,16 @@ class SoapDenovoTrans
       :t => 5,
       :G => 50
     }
-    defaults.merge params
+    defaults.merge(params) { |key, v1, v2| v2 }
   end
 
   def construct_command(params)
     params = self.include_defaults params
     cmd = "#{@path} all"
     # generic
-    cmd += " -s #{params[:config]}" # config file
+    cmd += " -s soapdt.config" # config file
     cmd += " -a #{params[:memory]}" if params.has_key? :memory # memory assumption
-    cmd += " -o #{params[:out]}" if params.has_key? :out # output directory
+    cmd += " -o #{params[:out]}" if params.has_key? :out # output prefix
     cmd += " -p #{params[:threads]}" # number of threads
     # specific
     cmd += " -K #{params[:K]}" # kmer size
@@ -61,7 +77,7 @@ class SoapDenovoTrans
   # runs SOAPdt script
   def run_soap(params)
     cmd = self.construct_command(params)
-    puts cmd
+    # puts cmd
     `#{cmd} > #{@count}.log`
   end
 

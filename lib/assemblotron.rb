@@ -151,9 +151,11 @@ EOS
 
     def run assembler
       @assembler_opts[:reference] = Transrate::Assembly.new(@assembler_opts[:reference])
+      @assembler_opts[:left] = File.expand_path(@assembler_opts[:left])
+      @assembler_opts[:right] = File.expand_path(@assembler_opts[:right])
       a = self.get_assembler assembler
       e = Biopsy::Experiment.new a, @assembler_opts
-      res = e.run
+      @res = e.run
     end # run
 
   end # Controller
