@@ -42,6 +42,11 @@ class SoapDenovoTrans
 
   def construct_command(params)
     params = self.include_defaults params
+    # validate the input
+    unless params.has_key? :config
+      msg = "SoapDenovoTrans requires a config file to be passed in"
+      raise ArgumentError.new msg
+    end
     cmd = "#{@path} all"
     # generic
     cmd += " -s #{params[:config]}" # config file
