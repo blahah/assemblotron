@@ -17,3 +17,6 @@ tmp
 _yardoc
 doc/
 .Rproj.user
+
+# dry run test data
+dryruns

@@ -7,10 +7,10 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 ]
 SimpleCov.start
 
-require 'test/unit'
+require 'minitest/autorun'
 begin; require 'turn/autorun'; rescue LoadError; end
 require 'shoulda-context'
 require 'assemblotron'
 
 Turn.config.format = :pretty
-Turn.config.trace = 10
+Turn.config.trace = 5

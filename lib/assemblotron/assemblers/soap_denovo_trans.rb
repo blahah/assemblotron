@@ -17,10 +17,11 @@ class SoapDenovoTrans
     # retrieve output
     scaffolds = Dir['*.scafSeq']
     return nil if scaffolds.empty?
-    puts scaffolds
-    scaffolds = scaffolds.first 
-    # return a Transrater
-    Transrate::Transrater.new(scaffolds, params[:reference], params[:left], params[:right])
+    scaffolds = scaffolds.first
+    return nil if File.size(scaffolds) == 0
+    # return a ComparativeMetrics object
+    assembly = Transrate::Assembly.new(scaffolds)
+    Transrate::ComparativeMetrics.new(assembly, params[:reference])
   end
 
   def include_defaults params
@@ -61,7 +62,6 @@ class SoapDenovoTrans
   # runs SOAPdt script
   def run_soap(params)
     cmd = self.construct_command(params)
-    puts cmd
     `#{cmd} > #{@count}.log`
   end
 

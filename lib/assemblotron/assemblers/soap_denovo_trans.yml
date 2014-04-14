@@ -1,8 +1,7 @@
 ---
 name: SoapDenovoTrans
 shortname: sdt
-output:
-  assembly: '*.scafSeq'
+output: {}
 parameters:
   config:
     type: string
@@ -16,7 +15,7 @@ parameters:
   right:
     type: string
     opt: false
-    desc: 'Path to left reads (for assembly quality analysis)'
+    desc: 'Path to right reads (for assembly quality analysis)'
   insertsize:
     type: integer
     opt: false
