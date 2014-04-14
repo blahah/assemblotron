@@ -2,6 +2,7 @@ require 'biopsy'
 require 'logger'
 require 'transrate'
 require 'assemblotron/version'
+require 'assemblotron/sample'
 require 'pp'
 require 'json'
 
@@ -197,7 +198,7 @@ EOS
       File.open(@global_opts[:output_parameters], 'wb') do |f|
         f.write(JSON.pretty_generate(res))
       end
-      
+
       # run the final assembly
       unless @global_opts[:skip_final]
         final_assembly a, res
