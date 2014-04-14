@@ -1,17 +1,17 @@
 module Assemblotron
 
   class Sample
-    
+
     # Return a new Sample with left and right reads
     def initialize(left, right)
       @left = left
       @right = right
     end
-    
+
     # Take a uniform random subsample of n reads from
     # each of the input FASTQ files @left and @right
     # using reservoir sampling.
-    def subsample(n, seed=1337)
+    def subsample(n, seed = 1337)
       rng = Random.new seed
       n = n.to_f
       m = 0.0
