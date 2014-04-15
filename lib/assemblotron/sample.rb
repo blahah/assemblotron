@@ -14,7 +14,7 @@ module Assemblotron
     def subsample(n, seed = 1337)
       rng = Random.new seed
       n = n.to_f
-      m = 0.0
+      count = 1
 
       l = File.open(@left).each_line.each_slice 4
       r = File.open(@right).each_line.each_slice 4
@@ -22,20 +22,19 @@ module Assemblotron
       reservoir = []
       first = true
       l.zip(r).each do |lrec, rrec|
-        if m < n
+        if count <= n
           # fill the reservoir with the first
           # n read pairs
           reservoir << [lrec, rrec]
         else
           # select this read with probability n / m
-          r = rng.rand
-          if r < n / m
+          if rng.rand < n / count
             # replace a random item in the reservoir
             i = rng.rand(n)
             reservoir[i] = [lrec, rrec]
           end
         end
-        m += 1.0
+        count += 1
       end
 
       # write out the reservoir reads
