@@ -2,7 +2,7 @@ require 'helper'
 
 class TestSoapDenovoTrans < Test::Unit::TestCase
 
-  context "SoapDenovoTrans constructor" do
+  context "Constructor" do
 
     setup do
       @c = Assemblotron::Controller.new
@@ -19,7 +19,9 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
         :memory => 12,
         :threads => 8,
         :out => 1,
+        :config => 'soapdt.config'
       }
+      @sdt_path = `which SOAPdenovo-Trans-127mer`.strip
     end
 
     should "construct a valid command" do
@@ -34,17 +36,24 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
         :t => 6
       }
       @params.merge! params
-      expected = "SOAPdenovo-Trans all -s soapdt.config"
+      expected = "#{@sdt_path} all -s soapdt.config"
       expected += " -a 12 -o 1 -p 8 -K 1 -d 2 -F -M 9 -L 200"
       expected += " -e 6 -t 6 -G 50"
       assert_equal expected, @s.construct_command(@params)
     end
 
     should "automatically include defaults" do
-      expected = "SOAPdenovo-Trans all -s soapdt.config"
+      expected = "#{@sdt_path} all -s soapdt.config"
       expected += " -a 12 -o 1 -p 8 -K 23 -d 0 -F -M 1"
       expected += " -L 100 -e 2 -t 5 -G 50"
       assert_equal expected, @s.construct_command(@params)
+    end
+
+    should 'require a config file' do
+      @params.delete :config
+      assert_raise ArgumentError do
+        @s.construct_command(@params)
+      end
     end
 
   end # SoapDenovoTrans constructor context
