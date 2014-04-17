@@ -13,4 +13,4 @@ require 'shoulda-context'
 require 'assemblotron'
 
 Turn.config.format = :pretty
-Turn.config.trace = 5
+Turn.config.trace = 1

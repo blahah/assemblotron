@@ -133,10 +133,10 @@ SRC
     def subsample(n, seed = 1337)
       ldir = File.dirname(@left)
       loutfile = File.join(ldir, "subset.#{File.basename @left}")
-      
+
       rdir = File.dirname(@right)
       routfile = File.join(rdir, "subset.#{File.basename @right}")
-      
+
       subsampleC(n,seed, @left, @right, loutfile, routfile)
 
       [loutfile, routfile]
