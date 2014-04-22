@@ -14,7 +14,7 @@ module Assemblotron
       builder.include '<stdio.h>'
       builder.include '<strings.h>'
       builder.c <<SRC
-        void subsampleC(VALUE n, VALUE left, VALUE right, VALUE leftout, VALUE rightout) {
+        void subsampleC(VALUE n, VALUE seed, VALUE left, VALUE right, VALUE leftout, VALUE rightout) {
           char * filename_left;
           char * filename_right;
           char * outname_left;
@@ -37,7 +37,8 @@ module Assemblotron
           FILE *rfp;
 
           nc = NUM2INT(n);
-          srand(11);
+          seedc = NUM2INT(seed);
+          srand(seedc);
           const char *res_l[nc];
           const char *res_r[nc];
 
