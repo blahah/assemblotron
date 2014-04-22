@@ -30,16 +30,20 @@ module Assemblotron
           size_t len = 0;
           ssize_t read_l;
           ssize_t read_r;
-          int nc,i;
-          float a,r;
+          unsigned nc, i;
+          float a, r;
           unsigned long count;
           FILE *lfp;
           FILE *rfp;
+          FILE *lout;
+          FILE *rout;
+          char *res_l = NULL;
+          char *res_r = NULL;
 
           nc = NUM2INT(n);
+          res_l = (char*) realloc(res_l, nc * sizeof(char));
+          res_r = (char*) realloc(res_r, nc * sizeof(char));
           srand(11);
-          const char *res_l[nc];
-          const char *res_r[nc];
 
           filename_left = StringValueCStr(left);
           filename_right = StringValueCStr(right);
@@ -58,8 +62,11 @@ module Assemblotron
             exit(1);
           }
 
-          count=1;
+          count = 1;
           while ((read_l = getline(&line_l1, &len, lfp)) != -1) {
+            char * str_l = (char *) malloc(400);
+            char * str_r = (char *) malloc(400);
+
             read_l += getline(&line_l2, &len, lfp);
             read_l += getline(&line_l3, &len, lfp);
             read_l += getline(&line_l4, &len, lfp);
@@ -68,8 +75,6 @@ module Assemblotron
             read_r += getline(&line_r3, &len, rfp);
             read_r += getline(&line_r4, &len, rfp);
             
-            char * str_l = (char *) malloc(400);
-            char * str_r = (char *) malloc(400);
             strcpy (str_l, line_l1);
             strcat (str_l, line_l2);
             strcat (str_l, line_l3);
@@ -88,7 +93,7 @@ module Assemblotron
               r = ((float)rand()/(float)(RAND_MAX)) * a;
               if (r < (float)nc/(float)count) {
                 i = rand() % nc;
-                if(i<0 || i >= nc) {
+                if (i < 0 || i >= nc) {
                   printf("ERROR, index out of bounds exception");
                 }
                 res_l[i] = str_l;
@@ -104,8 +109,8 @@ module Assemblotron
           fclose(lfp);
           fclose(rfp);
 
-          FILE *lout = fopen(outname_left, "w");
-          FILE *rout = fopen(outname_right, "w");
+          lout = fopen(outname_left, "w");
+          rout = fopen(outname_right, "w");
 
           if (lout == NULL) {
               printf("Error opening left file for writing\\n");
