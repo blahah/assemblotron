@@ -15,7 +15,7 @@ module Assemblotron
     builder.include '<stdio.h>'
     builder.include '<strings.h>'
     builder.c <<SRC
-      void subsample(VALUE n, VALUE seed, VALUE left, VALUE right, VALUE leftout, VALUE rightout) {
+      void subsampleC(VALUE n, VALUE seed, VALUE left, VALUE right, VALUE leftout, VALUE rightout) {
         char * filename_left;
         char * filename_right;
         char * outname_left;
@@ -52,11 +52,11 @@ module Assemblotron
         rfp = fopen(filename_right, "r");
 
         if (lfp == NULL) {
-          fprintf(stderr, "Cant open file!\\n");
+          fprintf(stderr, "Cant open left read file for subsetting!\\n");
           exit(1);
         }
         if (rfp == NULL) {
-          fprintf(stderr, "Cant open file!\\n");
+          fprintf(stderr, "Cant open right read file for subsetting!\\n");
           exit(1);
         }
 
@@ -137,6 +137,8 @@ SRC
       routfile = File.join(rdir, "subset.#{File.basename @right}")
 
       subsampleC(n, seed, @left, @right, loutfile, routfile)
+
+      puts "Subsampled #{n} reads. Sampled read files:\n#{loutfile}\n#{routfile}"
 
       [loutfile, routfile]
     end

@@ -10,6 +10,7 @@ module Assemblotron
 
   include Transrate
 
+
   class Controller
   
     attr_accessor :global_opts
@@ -154,18 +155,13 @@ EOS
     def subsample_input
       l = @assembler_opts[:left]
       r = @assembler_opts[:right]
-      size = @assembler_opts[:subsample_size]
+      size = @global_opts[:subsample_size]
 
       # save the path to the full input
       @lfull, @rfull  = l, r
 
-      ls = File.expand_path "subset.#{l}"
-      rs = File.expand_path "subset.#{r}"
-
-      unless File.exists? ls
-        s = Sample.new(l, r)
-        s.subsample size
-      end
+      s = Sample.new(l, r)
+      ls, rs = s.subsample size
  
       @assembler_opts[:left] = ls
       @assembler_opts[:right] = rs
@@ -201,6 +197,8 @@ EOS
 
       # run the final assembly
       unless @global_opts[:skip_final]
+        @assembler_opts[:left] = @lfull
+        @assembler_opts[:right] = @rfull
         final_assembly a, res
       end
     end # run

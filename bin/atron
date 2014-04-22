@@ -31,15 +31,16 @@ EOS
                 :short => "-l",
                 :default => nil,
                 :type => Float
-  opt :keep_intermediates, "Keep intermediate files produced during during optimisation."
-  opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)"
-  opt :skip_subsample, "skip subsampling step"
-  opt :skip_final, "skip final assembly step"
+  opt :keep_intermediates, "Keep intermediate files produced during during optimisation.", :default => false
+  opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)", :default => false
+  opt :skip_subsample, "skip subsampling step", :default => false
+  opt :skip_final, "skip final assembly step", :default => false
+  opt :subsample_size, "number of reads to use for optimisation", :default => 100_000
   opt :logfile, "write logs to file", :type => String
   opt :output_parameters, "file to which optimal parameters will be written", :default => "optimal_parameters.json"
-  opt :quiet, "Don't print any logs"
-  opt :verbose, "Print extra information"
-  opt :visualise, "Produce visualisations of the run"
+  opt :quiet, "Don't print any logs", :default => false
+  opt :verbose, "Print extra information", :default => false
+  opt :visualise, "Produce visualisations of the run", :default => false
   stop_on SUB_COMMANDS
 end
 
