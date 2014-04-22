@@ -15,7 +15,7 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
         :insertsize => '200',
         :l => 'l.fq',
         :r => 'r.fq',
-        :path => 'SOAPdenovo-Trans',
+        :path => 'SOAPdenovo-Trans-127mer',
         :memory => 12,
         :threads => 8,
         :out => 1,
@@ -34,14 +34,14 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
         :t => 6
       }
       @params.merge! params
-      expected = "SOAPdenovo-Trans all -s soapdt.config"
+      expected = "SOAPdenovo-Trans-127mer all -s soapdt.config"
       expected += " -a 12 -o 1 -p 8 -K 1 -d 2 -F -M 9 -L 200"
       expected += " -e 6 -t 6 -G 50"
       assert_equal expected, @s.construct_command(@params)
     end
 
     should "automatically include defaults" do
-      expected = "SOAPdenovo-Trans all -s soapdt.config"
+      expected = "SOAPdenovo-Trans-127mer all -s soapdt.config"
       expected += " -a 12 -o 1 -p 8 -K 23 -d 0 -F -M 1"
       expected += " -L 100 -e 2 -t 5 -G 50"
       assert_equal expected, @s.construct_command(@params)
