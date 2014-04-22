@@ -128,7 +128,9 @@ SRC
 
     # Take a uniform random subsample of n reads from
     # each of the input FASTQ files @left and @right
-    # using reservoir sampling.
+    # using reservoir sampling. Return an array of length
+    # 2, containing the paths to the left and right subsampled
+    # read files.
     def subsample(n, seed = 1337)
       ldir = File.dirname(@left)
       loutfile = File.join(ldir, "subset.#{File.basename @left}")

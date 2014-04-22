@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    assemblotron (0.0.1)
-      RubyInline (~> 3.12.2)
-      biopsy (= 0.1.7)
-      rake (~> 10.1.0)
+    assemblotron (0.0.2)
+      RubyInline (~> 3.12)
+      biopsy (= 0.1.8)
+      rake (~> 10.1)
       transrate (= 0.0.12)
       trollop (~> 2.0)
 
@@ -17,8 +17,8 @@ GEM
     ansi (1.4.3)
     bettersam (0.0.1.alpha)
     bio (1.4.3.0001)
-    biopsy (0.1.7)
-      rake (~> 10.1.0)
+    biopsy (0.1.8)
+      rake (~> 10.3)
       rubystats
       statsample
       threach
@@ -51,7 +51,7 @@ GEM
     prawn-security (0.8.4)
     prawn-svg (0.9.1.11)
       prawn (>= 0.8.4)
-    rake (10.1.1)
+    rake (10.3.1)
     reportbuilder (1.4.2)
       clbustos-rtf (~> 0.4.0)
       prawn (~> 0.8.4)
