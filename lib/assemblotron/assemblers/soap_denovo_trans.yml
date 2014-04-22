@@ -1,8 +1,7 @@
 ---
 name: SoapDenovoTrans
 shortname: sdt
-output:
-  assembly: '*.scafSeq'
+output: {}
 parameters:
   config:
     type: string
@@ -68,3 +67,6 @@ parameters:
     opt: true
     min: 1
     max: 15
+binary:
+  linux:
+    64bit:

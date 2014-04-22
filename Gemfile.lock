@@ -33,6 +33,7 @@ GEM
     mime-types (1.25)
     minimization (0.2.1)
       text-table (~> 1.2)
+    minitest (4.7.5)
     multi_json (1.8.0)
     pathname2 (1.6.5)
       facade
@@ -101,6 +102,7 @@ PLATFORMS
 DEPENDENCIES
   assemblotron!
   coveralls (~> 0.6.7)
+  minitest
   shoulda-context
   simplecov
   turn

@@ -1,8 +1,10 @@
-require "biopsy"
-require "logger"
-require "transrate"
-require "assemblotron/version"
-require "pp"
+require 'biopsy'
+require 'logger'
+require 'transrate'
+require 'assemblotron/version'
+require 'assemblotron/sample'
+require 'pp'
+require 'json'
 
 module Assemblotron
 
@@ -45,7 +47,7 @@ module Assemblotron
         @log.debug "config file found at #{config_file}"
         config = YAML::load_file(config_file)
         if config.nil?
-          @log.warn "config file malformed or empty"
+          @log.warn 'config file malformed or empty'
           return
         end
         @config = config.deep_symbolize
@@ -149,13 +151,60 @@ EOS
       end
     end
 
+    def subsample_input
+      l = @assembler_opts[:left]
+      r = @assembler_opts[:right]
+      size = @assembler_opts[:subsample_size]
+
+      # save the path to the full input
+      @lfull, @rfull  = l, r
+
+      ls = File.expand_path "subset.#{l}"
+      rs = File.expand_path "subset.#{r}"
+
+      unless File.exists? ls
+        s = Sample.new(l, r)
+        s.subsample size
+      end
+ 
+      @assembler_opts[:left] = ls
+      @assembler_opts[:right] = rs
+    end
+
+    def final_assembly assembler, result
+      Dir.mkdir('final_assembly')
+      Dir.chdir('final_assembly') do
+        assembler.run result
+      end
+    end
+
     def run assembler
+      # subsampling
+      unless @global_opts[:skip_subsample]
+        subsample_input
+      end
+
+      # load reference and create ublast DB
       @assembler_opts[:reference] = Transrate::Assembly.new(@assembler_opts[:reference])
-      @assembler_opts[:left] = File.expand_path(@assembler_opts[:left])
-      @assembler_opts[:right] = File.expand_path(@assembler_opts[:right])
+
+      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference], @assembler_opts[:reference])
+      ra.make_reference_db
+
+      # run the assemblotron
       a = self.get_assembler assembler
-      e = Biopsy::Experiment.new a, @assembler_opts
-      @res = e.run
+      e = Biopsy::Experiment.new a, @assembler_opts, @global_opts[:threads]
+      res = e.run
+
+      # write out the result
+      File.open(@global_opts[:output_parameters], 'wb') do |f|
+        f.write(JSON.pretty_generate(res))
+      end
+
+      # run the final assembly
+      unless @global_opts[:skip_final]
+        final_assembly a, res
+      end
+
     end # run
 
   end # Controller

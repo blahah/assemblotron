@@ -33,8 +33,10 @@ EOS
                 :type => Float
   opt :keep_intermediates, "Keep intermediate files produced during during optimisation."
   opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)"
-  opt :logfile, "write logs to file",
-                :type => String
+  opt :skip_subsample, "skip subsampling step"
+  opt :skip_final, "skip final assembly step"
+  opt :logfile, "write logs to file", :type => String
+  opt :output_parameters, "file to which optimal parameters will be written", :default => "optimal_parameters.json"
   opt :quiet, "Don't print any logs"
   opt :verbose, "Print extra information"
   opt :visualise, "Produce visualisations of the run"
