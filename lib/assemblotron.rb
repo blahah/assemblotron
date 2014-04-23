@@ -10,6 +10,7 @@ module Assemblotron
 
   include Transrate
 
+
   class Controller
   
     attr_accessor :global_opts
@@ -90,8 +91,8 @@ module Assemblotron
     end # assemblers
 
     def list_assemblers
-      puts Controller.header
-      puts <<-EOS
+      str = Controller.header
+      str << <<-EOS
 
 Available assemblers are listed below.
 Shortnames are shown in brackets if available.
@@ -104,8 +105,9 @@ EOS
       @assemblers.each do |a| 
         p = " - #{a.name}"
         p += " (#{a.shortname})" if a.respond_to? :shortname
-        puts p
+        str << p
       end
+      str
     end # list_assemblers
 
     def options_for_assembler assembler
@@ -154,21 +156,13 @@ EOS
     def subsample_input
       l = @assembler_opts[:left]
       r = @assembler_opts[:right]
-      size = @assembler_opts[:subsample_size]
+      size = @global_opts[:subsample_size]
 
-      # save the path to the full input
-      @lfull, @rfull  = l, r
-
-      ls = File.expand_path "subset.#{l}"
-      rs = File.expand_path "subset.#{r}"
-
-      unless File.exists? ls
-        s = Sample.new(l, r)
-        s.subsample size
-      end
+      s = Sample.new(l, r)
+      ls, rs = s.subsample size
  
-      @assembler_opts[:left] = ls
-      @assembler_opts[:right] = rs
+      @assembler_opts[:left_subset] = ls
+      @assembler_opts[:right_subset] = rs
     end
 
     def final_assembly assembler, result
@@ -180,7 +174,10 @@ EOS
 
     def run assembler
       # subsampling
-      unless @global_opts[:skip_subsample]
+      if @global_opts[:skip_subsample]
+        @assembler_opts[:left_subset] = assembler_opts[:left]
+        @assembler_opts[:right_subset] = assembler_opts[:right]
+      else
         subsample_input
       end
 
@@ -189,9 +186,12 @@ EOS
       ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference], @assembler_opts[:reference])
       ra.make_reference_db
 
-      # run the assemblotron
+      # setup the assembler
       a = self.get_assembler assembler
-      e = Biopsy::Experiment.new a, @assembler_opts, @global_opts[:threads]
+      a.setup_optim(@global_opts, @assembler_opts)
+
+      # run the optimisation
+      e = Biopsy::Experiment.new(a, options: @assembler_opts, threads: @global_opts[:threads])
       res = e.run
 
       # write out the result
@@ -200,6 +200,7 @@ EOS
       end
 
       # run the final assembly
+      a.setup_final(@global_opts, @assembler_opts)
       unless @global_opts[:skip_final]
         final_assembly a, res
       end
