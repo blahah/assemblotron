@@ -1,11 +1,17 @@
 module Assemblotron
 
+  # A collection of methods for getting information about the
+  # system on which Assemblotron is running. This information
+  # is used when installing assemblers and for giving feedback
+  # to the user abou platform-specific limitations.
   class System
 
     require 'rbconfig'
 
-    # Returns a symbol representing the host operating
-    # system: one of [:windows, :macosx, :linux, :unix]
+    # Get the host operating system.
+    #
+    # @return [Symbol] the host operating name, one of
+    #   `:linux`, `:unix`, `:macosx`, or `:windows`
     def self.os
       host_os = RbConfig::CONFIG['host_os']
       case host_os
@@ -22,16 +28,11 @@ module Assemblotron
       end
     end
 
-    # Returns the wordsize of the processor architecture:
-    # 32 on a 32bit system, 64 on a 64bit system
+    # Get the wordsize of the system processor architecture
+    #
+    # @return [Integer] 32 on a 32bit system, 64 on a 64bit system
     def self.wordsize
       ['a'].pack('P').length == 4 ? 32 : 64
-    end
-
-    # Check if software run by #cmd is installed
-    def initialize(left, right)
-      @left = left
-      @right = right
     end
 
   end

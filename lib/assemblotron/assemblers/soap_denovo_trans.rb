@@ -1,10 +1,13 @@
 require 'transrate'
 
+# The SOAPdenovo-trans assembler.
 class SoapDenovoTrans
 
   include Which
 
-  # Return a new SoapDenovoTrans object
+  # Create a new SoapDenovoTrans object
+  #
+  # @return [SoapDenovoTrans] the SoapDenovoTrans
   def initialize
     @count = 0
     @path = which('SOAPdenovo-Trans-127mer')
@@ -12,10 +15,13 @@ class SoapDenovoTrans
     @path = @path.first
   end
 
-  # Run the assembler with the provided parameters,
-  # returning a Transrate::ComparativeMetrics object
-  # containing a score for the generated assembly
-  # compared to the reference.
+  # Run the assembler with the provided parameters.
+  #
+  # @param params [Hash] the parameters to use for
+  #   running the assembler.
+  #
+  # @return [Transrate::ComparativeMetrics] metrics object
+  #   containing the assembly and its reference.
   def run params
     # run the assembly
     self.run_soap params
@@ -31,8 +37,21 @@ class SoapDenovoTrans
 
   # Perform any necessary setup for the assembler
   # prior to running the parameter optimisation.
-  # This includes modifying the config file to point
-  # to the subsetted reads rather than the full set.
+  #
+  # This method is called by the Controller *after* 
+  # *after* running the subsampler but *before* running
+  # the optimisation.
+  #
+  # Sets up the SOAPdenovo-trans config file with
+  # the subsampled read files and stores the config
+  # file path in `assembler_opts[:config]`.
+  #
+  # @note this method may modify its input variables.
+  #
+  # @param global_opts [Hash] the Assemblotron global options
+  # @param asssembler_opts [Hash] the assembler-specific options
+  #
+  # @return undefined
   def setup_optim(global_opts, assembler_opts)
     # setup config file for subsetted reads
     left = assembler_opts[:left_subset]
@@ -43,8 +62,21 @@ class SoapDenovoTrans
 
   # Perform any necessary setup for the assembler
   # prior to running the full optimal assembly.
-  # This includes resetting the config to refer
-  # to the full set of reads.
+  #
+  # This method is called *after* optimisation but
+  # *before* running the final assembly.
+  #
+  # Sets up the SOAPdenovo-trans config file with
+  # the full read files and stores the config
+  # file path in `assembler_opts[:config]`, overwriting
+  # any path already there.
+  #
+  # @note this method may modify its input variables.
+  #
+  # @param global_opts [Hash] the Assemblotron global options
+  # @param asssembler_opts [Hash] the assembler-specific options
+  #
+  # @return undefined
   def setup_full(global_opts, assembler_opts)
     # set config file for full read set
     left = assembler_opts[:left]
@@ -53,8 +85,16 @@ class SoapDenovoTrans
     assembler_opts[:config] = f
   end
 
-  # Generate a config file with the specified left and right
-  # read input files, returning the full path to the config file.
+  # Generate a SOAPdenovo-trans config file with the specified
+  # reads.
+  #
+  # @param left [String] file path to the FASTQ file containing the
+  #   left reads.
+  # @param right [String] file path to the FASTQ file containing the
+  #   right reads.  # read input files, returning the full path to the config file.
+  # @param asssembler_opts [Hash] the assembler-specific options
+  #
+  # @return [String] full path to the generated config gile
   def create_config left, right, assembler_opts
     # create the config file
     filename = "#{Time.now}.full.config"
@@ -70,7 +110,13 @@ class SoapDenovoTrans
     File.expand_path filename
   end
 
-  # Merge the default parameters with the hash provided
+  # Merge the default parameters with those provided.
+  #
+  # @note the default parameters are hard-coded in this method.
+  #
+  # @param params [Hash] parameters to merge with the defaults.
+  #
+  # @return [Hash] the merged parameters.
   def include_defaults params
     defaults = {
       :K => 23,
@@ -87,10 +133,13 @@ class SoapDenovoTrans
     defaults.merge params
   end
 
-  # Given a set of parameters, fill in any missing
-  # parameters with defaults and construct a command
-  # to run the target assembler. Return the command
-  # as a string.
+  # Construct the command to run SOAPdenovo-trans using
+  # the given parameters and filling in any unspecified
+  # parameters with explicit defaults.
+  #
+  # @param params [Hash] assembly parameters
+  #
+  # @return [String] the constructed command
   def construct_command params
     params = self.include_defaults params
     # validate the input
@@ -115,8 +164,12 @@ class SoapDenovoTrans
     cmd += " -G #{params[:G]}" # allowed length difference between estimated and filled gap
   end
 
-  # Run the SOAPdenovo-trans assembler with the provided
-  # parameters. Return the output generated.
+  # Run the SOAPdenovo-trans assembler with the specified
+  # parameters.
+  #
+  # @param params [Hash] assembly parameters
+  #
+  # @return [String] STDOUT output of the assembly run
   def run_soap(params)
     cmd = self.construct_command(params)
     `#{cmd} > #{@count}.log`

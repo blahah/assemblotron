@@ -6,17 +6,30 @@ require 'assemblotron/sample'
 require 'pp'
 require 'json'
 
+# An automated transcriptome assembly optimiser.
+#
+# Assemblotron takes a random subset of your input
+# reads and uses the subset to optimise the settings
+# of *any* assembler, then runs the assembler with 
+# the full set of reads and the optimal settings.
 module Assemblotron
 
   include Transrate
 
-
+  # Co-ordinates the entire assembly optimisation process
+  #
+  # @!attribute [r] global_opts
+  #   @return [Hash] the global options
+  # @!attribute [r] assembler_opts
+  #   @return [Hash] the assembler-specific options
   class Controller
   
     attr_accessor :global_opts
     attr_accessor :assembler_opts
 
-    # Return a new Assemblotron
+    # Creates a new Controller
+    #
+    # @return [Controller] the Controller
     def initialize
       @log = Logger.new(STDOUT)
       @log.level = Logger::INFO
@@ -26,6 +39,11 @@ module Assemblotron
       self.load_assemblers
     end # initialize
 
+    # Creates a header containing the program name
+    # and the installed version, for inclusion in 
+    # command-line logging and help.
+    #
+    # @return [String] the header text
     def self.header
       "Assemblotron v#{VERSION::STRING.dup}"
     end
@@ -57,16 +75,14 @@ module Assemblotron
 
     # Discover and load available assemblers.
     #
-    # Loads all assemblers provided by the program, and
+    # Loads all assemblers included with assemblotron,
     # then searches any directories listed in the config
-    # file (+~/.assemblotron+) setting +assembler_dirs+.
+    # file (+~/.assemblotron+) setting +assembler_dirs+ and
+    # loads any assembler definitions found.
     #
-    # Directories listed in +assembler_dirs+ must contain:
-    #
-    # +definitions+::  Directory with one +.yml+ definition per assembler.
-    #                  See the documentation for Definition.
-    # +constructors+:: Directory with one +.rb+ file per assembler.
-    #                  See the documentation for Constructor. 
+    # Directories listed in +assembler_dirs+ must contain
+    # one +.yml+ definition and one +.rb+ constructor per
+    # assembler (see AssemblerDefinition).
     def load_assemblers
       Biopsy::Settings.instance.target_dir.each do |dir|
         Dir.chdir dir do
@@ -80,7 +96,10 @@ module Assemblotron
       end
     end # load_assemblers
 
-    # Return an array of the names of available assemblers
+    # Collect all valid names for available assemblers
+    #
+    # @return [Array<String>] names and shortnames (if
+    #          applicable) for available assemblers.
     def assemblers
       a = []
       @assemblers.each do |t|
@@ -90,6 +109,9 @@ module Assemblotron
       a
     end # assemblers
 
+    # Produce a help message listing installed assemblers.
+    #
+    # @return [String] the help message.
     def list_assemblers
       str = Controller.header
       str << <<-EOS
@@ -110,6 +132,12 @@ EOS
       str
     end # list_assemblers
 
+    # Generate an argument parser for the specified assembler
+    # by extracting the parameters that are not intended to be
+    # optimised from the assembler definition.
+    #
+    # @param assembler [String] assembler name or shortname
+    # @return [Trollop::Parser] the argument parser
     def parser_for_assembler assembler
       a = self.get_assembler assembler
       parser = Trollop::Parser.new do
@@ -129,6 +157,11 @@ EOS
       end
     end # options_for_assembler
 
+    # Given the name of an assembler, get the loaded assembler
+    # ready for optimisation.
+    #
+    # @param assembler [String] assembler name or shortname
+    # @return [Biopsy::Target] the loaded assembler
     def get_assembler assembler
       ret = @assemblers.find do |a|
         a.name == assembler || 
@@ -138,6 +171,10 @@ EOS
       ret
     end
 
+    # Given the name of a type, return its class
+    #
+    # @param [String] type
+    # @return [Class] the class corresponding to the type
     def self.class_from_type type
       case type
       when 'str'
@@ -153,6 +190,9 @@ EOS
       end
     end
 
+    # Run the subsampler on the input reads, storing
+    # the paths to the samples in the assembler_opts
+    # hash.
     def subsample_input
       l = @assembler_opts[:left]
       r = @assembler_opts[:right]
@@ -165,6 +205,12 @@ EOS
       @assembler_opts[:right_subset] = rs
     end
 
+    # Run the final assembly using the specified assembler
+    # and the optimal set of parameters.
+    #
+    # @param assembler [Biopsy::Target] the assembler
+    # @param result [Hash] the optimal set of parameters 
+    #   as chosen by the optimisation algorithm
     def final_assembly assembler, result
       Dir.mkdir('final_assembly')
       Dir.chdir('final_assembly') do
@@ -172,6 +218,11 @@ EOS
       end
     end
 
+    # Run the entire Assemblotron process using the named
+    # assembler using the options stored in #global_opts and
+    # #assembler_opts.
+    #
+    # @param [String] assembler name or shortname
     def run assembler
       # subsampling
       if @global_opts[:skip_subsample]
@@ -199,7 +250,7 @@ EOS
         f.write(JSON.pretty_generate(res))
       end
 
-      # run the final assembly
+      # un the final assembly
       a.setup_final(@global_opts, @assembler_opts)
       unless @global_opts[:skip_final]
         final_assembly a, res

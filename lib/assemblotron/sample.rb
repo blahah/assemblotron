@@ -2,20 +2,43 @@ require 'inline'
 
 module Assemblotron
 
+  # A subsampler for a pair of FASTQ read files.
   class Sample
 
-    # Return a new Sample with left and right reads
+    # Create a new Sample
+    #
+    # @param left [String] file path to the FASTQ file containing the
+    #   left reads.
+    # @param right [String] file path to the FASTQ file containing the
+    #   right reads.
+    # @return [Sample] the Sample.
     def initialize(left, right)
       @left = left
       @right = right
     end
 
+    # C function to perform reservoir sampling of paired FASTQ
+    # records.
+    # 
+    # This function was written in inlined C to give a speedup
+    # of around 300x compared to native Ruby.
+    #
+    # @param n [Integer] the number of read pairs to sample.
+    # @param seed [Integer] seed for the random number generator.
+    # @param left [String] file path to the FASTQ file containing the
+    #   left reads.
+    # @param right [String] file path to the FASTQ file containing the
+    #   right reads.
+    # @param leftout [String] file path where left sample will be written.
+    # @param rightout [String] file path where right sample will be written.
     inline :C do |builder|
     builder.add_compile_flags %q(-w)
     builder.include '<stdio.h>'
     builder.include '<strings.h>'
     builder.c <<SRC
-      void subsampleC(VALUE n, VALUE seed, VALUE left, VALUE right, VALUE leftout, VALUE rightout) {
+      void subsampleC(VALUE n, VALUE seed, 
+                      VALUE left, VALUE right, 
+                      VALUE leftout, VALUE rightout) {
         char * filename_left;
         char * filename_right;
         char * outname_left;
@@ -131,6 +154,12 @@ SRC
     # using reservoir sampling. Return an array of length
     # 2, containing the paths to the left and right subsampled
     # read files.
+    #
+    # @param n [Integer] the number of read pairs to sample.
+    # @param seed [Integer] seed for the random number generator
+    #   (optional).
+    # @return [Array<String>] array of length two containing the
+    #   paths to the left and right FASTQ samples.
     def subsample(n, seed = 1337)
       ldir = File.dirname(@left)
       loutfile = File.join(ldir, "subset.#{File.basename @left}")
@@ -139,11 +168,6 @@ SRC
       routfile = File.join(rdir, "subset.#{File.basename @right}")
 
       subsampleC(n, seed, @left, @right, loutfile, routfile)
-
-      loglevel = 0
-      if loglevel > 2
-        puts "Subsampled #{n} reads. Sampled read files:\n#{loutfile}\n#{routfile}"
-      end
       
       [loutfile, routfile]
     end
