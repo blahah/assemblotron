@@ -1,4 +1,5 @@
 require 'helper'
+require 'trollop'
 
 class TestController < Test::Unit::TestCase
 
@@ -68,23 +69,39 @@ class TestController < Test::Unit::TestCase
     end
 
     should 'select installed assemblers by name' do
-      assert false, 'not implemented'
+      ['SoapDenovoTrans', 'sdt'].each do |assembler|
+        t = nil
+        assert_nothing_raised { t = @c.get_assembler(assembler) }
+        assert_equal Biopsy::Target, t.class,
+                     'get_assembler must return a Biopsy::Target'
+        assert (t.name == assembler || t.shortname == assembler),
+               'get_assembler must return the correct target'
+
+      end
     end
 
     should 'complain helpfully if requested assembler is not installed' do
-      assert false, 'not implemented'
+      @c.load_assemblers
+      assert_raise RuntimeError do
+        @c.get_assembler 'not_a_real_assembler'
+      end
     end
 
-    should 'convert string type descriptions to Classes' do
-      assert false, 'not implemented'
+    should 'convert type descriptions to Classes' do
+      assert_equal String, Assemblotron::Controller.class_from_type('str')
+      assert_equal String, Assemblotron::Controller.class_from_type('string')
+      assert_equal Integer, Assemblotron::Controller.class_from_type('int')
+      assert_equal Integer, Assemblotron::Controller.class_from_type('integer')
+      assert_equal Float, Assemblotron::Controller.class_from_type('float')
+      assert_equal nil, Assemblotron::Controller.class_from_type('notarealtype')
     end
 
-    should 'load correctly specified options for installed assembler' do
-      assert false, 'not implemented'
-    end
-
-    should 'complain helpfully if assembler options are missing or malformed' do
-      assert false, 'not implemented'
+    should 'generates parser for installed assembler' do
+      ['sdt', 'SoapDenovoTrans'].each do |assembler|
+        o = nil
+        assert_nothing_raised { o = @c.parser_for_assembler assembler }
+        assert_equal Trollop::Parser, o.class
+      end
     end
 
   end # Assemblers

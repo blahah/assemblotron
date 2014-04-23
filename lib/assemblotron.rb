@@ -110,7 +110,7 @@ EOS
       str
     end # list_assemblers
 
-    def options_for_assembler assembler
+    def parser_for_assembler assembler
       a = self.get_assembler assembler
       parser = Trollop::Parser.new do
           banner <<-EOS
@@ -127,10 +127,6 @@ EOS
               :type => Controller.class_from_type(opts[:type])
         end
       end
-      Trollop::with_standard_exception_handling parser do
-        raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-        parser.parse ARGV
-      end
     end # options_for_assembler
 
     def get_assembler assembler
@@ -144,9 +140,13 @@ EOS
 
     def self.class_from_type type
       case type
+      when 'str'
+        String
       when 'string'
         String
       when 'int'
+        Integer
+      when 'integer'
         Integer
       when 'float'
         Float
