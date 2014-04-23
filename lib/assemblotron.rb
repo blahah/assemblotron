@@ -91,8 +91,8 @@ module Assemblotron
     end # assemblers
 
     def list_assemblers
-      puts Controller.header
-      puts <<-EOS
+      str = Controller.header
+      str << <<-EOS
 
 Available assemblers are listed below.
 Shortnames are shown in brackets if available.
@@ -105,8 +105,9 @@ EOS
       @assemblers.each do |a| 
         p = " - #{a.name}"
         p += " (#{a.shortname})" if a.respond_to? :shortname
-        puts p
+        str << p
       end
+      str
     end # list_assemblers
 
     def options_for_assembler assembler

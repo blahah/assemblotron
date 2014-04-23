@@ -140,8 +140,11 @@ SRC
 
       subsampleC(n, seed, @left, @right, loutfile, routfile)
 
-      puts "Subsampled #{n} reads. Sampled read files:\n#{loutfile}\n#{routfile}"
-
+      loglevel = 0
+      if loglevel > 2
+        puts "Subsampled #{n} reads. Sampled read files:\n#{loutfile}\n#{routfile}"
+      end
+      
       [loutfile, routfile]
     end
 

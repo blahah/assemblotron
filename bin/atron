@@ -57,7 +57,7 @@ assmebler_opts = nil
 if cmd.nil?
   opts 
 elsif cmd == "list"
-  controller.list_assemblers
+  puts controller.list_assemblers
   exit
 elsif cmd == "run"
   assembler = ARGV.shift
