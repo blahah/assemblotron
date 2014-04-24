@@ -16,8 +16,8 @@ class TestSample < Test::Unit::TestCase
       ns = [50, 100, 200, 500]
       ns.each do |n|
         @l, @r = @sample.subsample n
-        actual_n_l = `wc -l #{l}`.to_i / 4
-        actual_n_r = `wc -l #{r}`.to_i / 4
+        actual_n_l = `wc -l #{@l}`.to_i / 4
+        actual_n_r = `wc -l #{@r}`.to_i / 4
         assert_equal n, actual_n_l, "left read subsample size should be #{n}"
         assert_equal n, actual_n_r, "right read subsample size should be #{n}"
       end
