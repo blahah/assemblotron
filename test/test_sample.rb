@@ -7,7 +7,7 @@ class TestSample < Test::Unit::TestCase
     setup do
       datadir = File.join(File.dirname(__FILE__), 'data')
       datadir = File.absolute_path datadir
-      l = File.join(datadir, 'thousand_reads_l.fq') 
+      l = File.join(datadir, 'thousand_reads_l.fq')
       r = File.join(datadir, 'thousand_reads_r.fq')
       @sample = Assemblotron::Sample.new(l, r)
     end
