@@ -98,7 +98,7 @@ class SoapDenovoTrans
   # @return [String] full path to the generated config gile
   def create_config left, right, assembler_opts
     # create the config file
-    filename = "#{Time.now}.full.config".tr(" ","_")
+    filename = "#{Time.now}.full.config".tr(" ","_").tr(":",".")
     File.open(filename, 'w') do |f|
       f.puts 'max_rd_len=5000'
       f.puts '[LIB]'
