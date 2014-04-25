@@ -35,11 +35,11 @@ EOS
   opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)"
   opt :skip_subsample, "skip subsampling step"
   opt :skip_final, "skip final assembly step"
+  opt :subsample_size, "number of reads to use for optimisation", :default => 100_000
   opt :optimiser, "Which optimiser to use. Possible: 'tabu' or 'sweeper' (default:'tabu')", :type => String, 
           :default => "tabu"
   opt :logfile, "write logs to file", :type => String
   opt :output_parameters, "file to which optimal parameters will be written", :default => "optimal_parameters.json"
-  opt :quiet, "Don't print any logs"
   opt :verbosity, "How much extra information is printed [silent|quiet|loud]",
           :type => String, :default => "silent"
   opt :visualise, "Produce visualisations of the run"
@@ -59,13 +59,17 @@ assmebler_opts = nil
 if cmd.nil?
   opts 
 elsif cmd == "list"
-  controller.list_assemblers
+  puts controller.list_assemblers
   exit
 elsif cmd == "run"
   assembler = ARGV.shift
 elsif controller.assemblers.include?(cmd)
   assembler = cmd
-  assembler_opts = controller.options_for_assembler cmd
+  assembler_parser = controller.parser_for_assembler cmd
+  assembler_opts = Trollop::with_standard_exception_handling parser do
+    raise Trollop::HelpNeeded if ARGV.empty? # show help screen
+    parser.parse ARGV
+  end
 else
   Trollop::die "unknown subcommand #{cmd.inspect}"
 end
