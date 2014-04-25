@@ -13,8 +13,8 @@ Gem::Specification.new do |gem|
   gem.files = Dir['Rakefile', '{lib,test}/**/*', 'README*', 'LICENSE*']
   gem.require_paths = %w[ lib ]
 
-  gem.add_dependency 'rake', '~> 10.1'
-  gem.add_dependency 'biopsy', '0.1.8'
+  gem.add_dependency 'rake', '~> 10.3'
+  gem.add_dependency 'biopsy', '0.1.9'
   gem.add_dependency 'trollop', '~> 2.0'
   gem.add_dependency 'transrate', '0.0.12'
   gem.add_dependency 'RubyInline', '~> 3.12'

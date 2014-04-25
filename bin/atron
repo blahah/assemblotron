@@ -21,28 +21,48 @@ run         - run optimisation for an assembler
 
 Global options:
 EOS
-  opt :threads, "Number of threads to use", 
-                :short => "-t", 
-                :default => 4
-  opt :memlimit, "Maximum amount of RAM to use in GB (note, not all assemblers respect this setting)",
-                :short => "-m",
-                :default => 2
-  opt :timelimit, "Time limit for the optimisation in hours. If the run hasn't converged in this time, the best result achieved so far will be returned.",
-                :short => "-l",
-                :default => nil,
-                :type => Float
-  opt :keep_intermediates, "Keep intermediate files produced during during optimisation."
-  opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)"
-  opt :skip_subsample, "skip subsampling step"
-  opt :skip_final, "skip final assembly step"
-  opt :subsample_size, "number of reads to use for optimisation", :default => 100_000
-  opt :optimiser, "Which optimiser to use. Possible: 'tabu' or 'sweeper' (default:'tabu')", :type => String, 
-          :default => "tabu"
+  
+  opt :threads,
+      "Number of threads to use",
+      :short => "-t",
+      :default => 4
+  opt :memlimit,
+      "Maximum amount of RAM to use in GB (note, not all assemblers " +
+      "respect this setting)",
+      :short => "-m",
+      :default => 2
+  opt :timelimit,
+      "Time limit for the optimisation in hours. If the " +
+      "run hasn't converged in this time, the best result " +
+      " achieved so far will be returned.",
+      :short => "-l",
+      :default => nil,
+      :type => Float
+  opt :keep_intermediates,
+      "Keep intermediate files produced during during optimisation.",
+      :default => false
+  opt :gzip_intermediates,
+      "gzip intermediate files (onlys takes effect if " +
+      "--keep-intermediates is on)",
+      :default => false
+  opt :skip_subsample, "skip subsampling step", :default => false
+  opt :skip_final, "skip final assembly step", :default => false
+  opt :subsample_size, "number of reads to use for optimisation",
+      :default => 100_000
+  opt :optimiser,
+      "Which optimiser to use. Possible: 'tabu' or 'sweeper' (default:'tabu')",
+      :type => String, 
+      :default => "tabu"
   opt :logfile, "write logs to file", :type => String
-  opt :output_parameters, "file to which optimal parameters will be written", :default => "optimal_parameters.json"
-  opt :verbosity, "How much extra information is printed [silent|quiet|loud]",
-          :type => String, :default => "silent"
-  opt :visualise, "Produce visualisations of the run"
+  opt :output_parameters,
+      "file to which optimal parameters will be written",
+      :default => "optimal_parameters.json"
+  opt :quiet, "Don't print any logs", :default => false
+  opt :verbosity,
+      "How much extra information is printed [silent|quiet|loud]",
+      :type => String,
+      :default => "silent"
+  opt :visualise, "Produce visualisations of the run", :default => false
   stop_on SUB_COMMANDS
 end
 
@@ -63,9 +83,9 @@ elsif cmd == "list"
   exit
 elsif cmd == "run"
   assembler = ARGV.shift
-elsif controller.assemblers.include?(cmd)
+elsif controller.assemblers.include? cmd
   assembler = cmd
-  assembler_parser = controller.parser_for_assembler cmd
+  parser = controller.parser_for_assembler cmd
   assembler_opts = Trollop::with_standard_exception_handling parser do
     raise Trollop::HelpNeeded if ARGV.empty? # show help screen
     parser.parse ARGV
