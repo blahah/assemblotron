@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'biopsy'
 require 'logger'
 require 'transrate'
@@ -253,13 +254,13 @@ EOS
         raise NotImplementedError, "please select either tabu or\                                                     
          sweeper as the optimiser"
       end
-
-      e = Biopsy::Experiment.new(a, @assembler_opts,
-                                 @global_opts[:threads],
-                                 start,
-                                 algorithm,
-                                 @global_opts[:verbosity].to_sym)
-
+      # run the optimisation
+      e = Biopsy::Experiment.new(a, 
+                                 options: @assembler_opts,
+                                 threads: @global_opts[:threads],
+                                 start: start,
+                                 algorithm: algorithm,
+                                 verbosity: @global_opts[:verbosity].to_sym)
       res = e.run
 
       # write out the result

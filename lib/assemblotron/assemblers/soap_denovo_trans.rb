@@ -54,6 +54,7 @@ class SoapDenovoTrans
   # @return undefined
   def setup_optim(global_opts, assembler_opts)
     # setup config file for subsetted reads
+    puts 'peforming setup for SoapDenovotrans optimisation'
     left = assembler_opts[:left_subset]
     right = assembler_opts[:right_subset]
     f = create_config(left, right, assembler_opts)
@@ -98,16 +99,18 @@ class SoapDenovoTrans
   def create_config left, right, assembler_opts
     # create the config file
     filename = "#{Time.now}.full.config".tr(" ","_")
-    File.open(filename,'w') do |f|
-      f << 'max_rd_len=5000'
-      f << '[LIB]'
-      f << "avg_ins=#{assembler_opts[:insertsize]}"
-      f << "reverse_seq=0" # don't reverse complement the reads
-      f << "asm_flags=3"   # use the reads for assembly and scaffolding
-      f << "q1=#{left}"
-      f << "q2=#{right}"
+    File.open(filename, 'w') do |f|
+      f.puts 'max_rd_len=5000'
+      f.puts '[LIB]'
+      f.puts "avg_ins=#{assembler_opts[:insertsize]}"
+      f.puts "reverse_seq=0" # don't reverse complement the reads
+      f.puts "asm_flags=3"   # use the reads for assembly and scaffolding
+      f.puts "q1=#{left}"
+      f.puts "q2=#{right}"
     end
-    File.expand_path filename
+    filename = File.expand_path filename
+    puts "config file created: #{filename}"
+    filename 
   end
 
   # Merge the default parameters with those provided.
@@ -164,6 +167,8 @@ class SoapDenovoTrans
     cmd += " -e #{params[:e]}" # delete contigs with coverage no greater than
     cmd += " -t #{params[:t]}" # maximum number of transcripts from one locus
     cmd += " -G #{params[:G]}" # allowed length difference between estimated and filled gap
+    puts cmd
+    cmd
   end
 
   # Run the SOAPdenovo-trans assembler with the specified

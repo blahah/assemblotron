@@ -23,7 +23,7 @@ GEM
       turn
     bio (1.4.3.0001)
     biopsy (0.1.9)
-      rake (~> 10.1)
+      rake (~> 10.3)
       rubystats
       statsample
       threach
