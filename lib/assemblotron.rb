@@ -233,8 +233,10 @@ EOS
       end
 
       # load reference and create ublast DB
-      @assembler_opts[:reference] = Transrate::Assembly.new(@assembler_opts[:reference])
-      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference], @assembler_opts[:reference])
+      @assembler_opts[:reference] = 
+        Transrate::Assembly.new(@assembler_opts[:reference])
+      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference],
+                                               @assembler_opts[:reference])
       ra.make_reference_db
 
       # setup the assembler
@@ -242,7 +244,10 @@ EOS
       a.setup_optim(@global_opts, @assembler_opts)
 
       # run the optimisation
-      e = Biopsy::Experiment.new(a, options: @assembler_opts, threads: @global_opts[:threads])
+      e = Biopsy::Experiment.new(a, 
+                                 options: @assembler_opts,
+                                 threads: @global_opts[:threads],
+                                 verbosity: :loud)
       res = e.run
 
       # write out the result
@@ -250,7 +255,7 @@ EOS
         f.write(JSON.pretty_generate(res))
       end
 
-      # un the final assembly
+      # run the final assembly
       a.setup_final(@global_opts, @assembler_opts)
       unless @global_opts[:skip_final]
         final_assembly a, res
