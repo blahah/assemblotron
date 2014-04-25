@@ -246,6 +246,8 @@ EOS
       if @global_opts[:optimiser] == 'tabu'
         algorithm = Biopsy::TabuSearch.new(a.parameters)
       elsif @global_opts[:optimiser] == 'sweeper'
+        p a.parameters
+        exit
         algorithm = Biopsy::ParameterSweeper.new(a.parameters)
       else
         raise NotImplementedError, "please select either tabu or\                                                     

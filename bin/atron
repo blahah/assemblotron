@@ -61,17 +61,17 @@ if cmd.nil?
 elsif cmd == "list"
   puts controller.list_assemblers
   exit
-elsif cmd == "run"
-  assembler = ARGV.shift
+# elsif cmd == "run"
+#   assembler = ARGV.shift
 elsif controller.assemblers.include?(cmd)
   assembler = cmd
   assembler_parser = controller.parser_for_assembler cmd
-  assembler_opts = Trollop::with_standard_exception_handling parser do
+  assembler_opts = Trollop::with_standard_exception_handling assembler_parser do
     raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-    parser.parse ARGV
+    assembler_parser.parse ARGV
   end
 else
-  Trollop::die "unknown subcommand #{cmd.inspect}"
+  abort "unknown subcommand #{cmd.inspect}"
 end
 
 # run command

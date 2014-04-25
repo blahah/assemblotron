@@ -3,8 +3,8 @@ PATH
   specs:
     assemblotron (0.0.2)
       RubyInline (~> 3.12)
-      biopsy (= 0.1.8)
-      rake (~> 10.1)
+      biopsy (= 0.1.9)
+      rake (~> 10.3)
       transrate (= 0.0.12)
       trollop (~> 2.0)
 
@@ -15,10 +15,15 @@ GEM
       ZenTest (~> 4.3)
     ZenTest (4.9.5)
     ansi (1.4.3)
-    bettersam (0.0.1.alpha)
+    bettersam (0.0.2)
+      coveralls
+      rake
+      shoulda-context
+      simplecov
+      turn
     bio (1.4.3.0001)
-    biopsy (0.1.8)
-      rake (~> 10.3)
+    biopsy (0.1.9)
+      rake (~> 10.1)
       rubystats
       statsample
       threach

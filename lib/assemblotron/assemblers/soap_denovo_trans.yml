@@ -3,11 +3,6 @@ name: SoapDenovoTrans
 shortname: sdt
 output: {}
 parameters:
-  config:
-    type: string
-    opt: false
-    desc: 'Path to SoapDenovoTrans config file'
-    required: true
   left:
     type: string
     opt: false
