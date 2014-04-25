@@ -111,7 +111,7 @@ EOS
     def options_for_assembler assembler
       a = self.get_assembler assembler
       parser = Trollop::Parser.new do
-          banner <<-EOS
+      banner <<-EOS
 #{Controller.header}
 
 Options for assembler #{assembler}
@@ -133,8 +133,7 @@ EOS
 
     def get_assembler assembler
       ret = @assemblers.find do |a|
-        a.name == assembler || 
-        a.shortname == assembler
+        a.name == assembler || a.shortname == assembler
       end
       raise "couldn't find assembler #{assembler}" if ret.nil?
       ret
@@ -185,14 +184,30 @@ EOS
       end
 
       # load reference and create ublast DB
-      @assembler_opts[:reference] = Transrate::Assembly.new(@assembler_opts[:reference])
-
-      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference], @assembler_opts[:reference])
+      @assembler_opts[:reference] = 
+        Transrate::Assembly.new(@assembler_opts[:reference])
+      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference],
+                                               @assembler_opts[:reference])
       ra.make_reference_db
 
       # run the assemblotron
       a = self.get_assembler assembler
-      e = Biopsy::Experiment.new a, @assembler_opts, @global_opts[:threads]
+      start = nil
+      algorithm = nil
+      if @global_opts[:optimiser] == 'tabu'
+        algorithm = Biopsy::TabuSearch.new(a.parameters)
+      elsif @global_opts[:optimiser] == 'sweeper'
+        algorithm = Biopsy::ParameterSweeper.new(a.parameters)
+      else
+        raise NotImplementedError, "please select either tabu or\                                                     
+         sweeper as the optimiser"
+      end
+
+      e = Biopsy::Experiment.new(a, @assembler_opts,
+                                 @global_opts[:threads],
+                                 start,
+                                 algorithm,
+                                 @global_opts[:verbosity].to_sym)
       res = e.run
 
       # write out the result
@@ -201,10 +216,7 @@ EOS
       end
 
       # run the final assembly
-      unless @global_opts[:skip_final]
-        final_assembly a, res
-      end
-
+      final_assembly a, res unless @global_opts[:skip_final]
     end # run
 
   end # Controller

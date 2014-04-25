@@ -35,10 +35,13 @@ EOS
   opt :gzip_intermediates, "gzip intermediate files (onlys takes effect if --keep-intermediates is on)"
   opt :skip_subsample, "skip subsampling step"
   opt :skip_final, "skip final assembly step"
+  opt :optimiser, "Which optimiser to use. Possible: 'tabu' or 'sweeper' (default:'tabu')", :type => String, 
+          :default => "tabu"
   opt :logfile, "write logs to file", :type => String
   opt :output_parameters, "file to which optimal parameters will be written", :default => "optimal_parameters.json"
   opt :quiet, "Don't print any logs"
-  opt :verbose, "Print extra information"
+  opt :verbosity, "How much extra information is printed [silent|quiet|loud]",
+          :type => String, :default => "silent"
   opt :visualise, "Produce visualisations of the run"
   stop_on SUB_COMMANDS
 end
