@@ -98,7 +98,7 @@ class SoapDenovoTrans
   def create_config left, right, assembler_opts
     # create the config file
     filename = "#{Time.now}.full.config"
-    File.open(filename) do |f|
+    File.open(filename,'w') do |f|
       f << 'max_rd_len=5000'
       f << '[LIB]'
       f << "avg_ins=#{assembler_opts[:insertsize]}"
