@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'biopsy'
 require 'logger'
 require 'transrate'
@@ -32,7 +33,7 @@ module Assemblotron
     # @return [Controller] the Controller
     def initialize
       @log = Logger.new(STDOUT)
-      @log.level = Logger::INFO
+      @log.level = Logger::DEBUG
       self.load_config
       self.init_settings
       @assemblers = []
@@ -48,7 +49,9 @@ module Assemblotron
       "Assemblotron v#{VERSION::STRING.dup}"
     end
 
-    # Initialise the Biopsy settings
+    # Initialise the Biopsy settings with defaults,
+    # setting target and objectiv directories to those
+    # provided with Assemblotron
     def init_settings
       s = Biopsy::Settings.instance
       s.set_defaults
@@ -212,7 +215,7 @@ EOS
     # @param result [Hash] the optimal set of parameters 
     #   as chosen by the optimisation algorithm
     def final_assembly assembler, result
-      Dir.mkdir('final_assembly')
+      Dir.mkdir('final_assembly') unless Dir.exist? 'final_assembly'
       Dir.chdir('final_assembly') do
         assembler.run result
       end
@@ -224,14 +227,7 @@ EOS
     #
     # @param [String] assembler name or shortname
     def run assembler
-      # subsampling
-      if @global_opts[:skip_subsample]
-        @assembler_opts[:left_subset] = assembler_opts[:left]
-        @assembler_opts[:right_subset] = assembler_opts[:right]
-      else
-        subsample_input
-      end
-
+      res = nil
       # load reference and create ublast DB
       @assembler_opts[:reference] = 
         Transrate::Assembly.new(@assembler_opts[:reference])
@@ -241,23 +237,41 @@ EOS
 
       # setup the assembler
       a = self.get_assembler assembler
-      a.setup_optim(@global_opts, @assembler_opts)
 
-      # run the optimisation
-      e = Biopsy::Experiment.new(a, 
-                                 options: @assembler_opts,
-                                 threads: @global_opts[:threads],
-                                 verbosity: :loud)
-      res = e.run
+      if @global_opts[:optimal_parameters]
+        @log.info 'optimal parameters provided by user; skipping' +
+                  ' optimisation to perform final assembly'
+        File.open(@global_opts[:optimal_parameters], 'r') do |f|
+          res_json = f.read
+          res = JSON.parse(res_json, symbolize_names: true)
+        end
+      else
+        # subsampling
+        if @global_opts[:skip_subsample]
+          @assembler_opts[:left_subset] = assembler_opts[:left]
+          @assembler_opts[:right_subset] = assembler_opts[:right]
+        else
+          subsample_input
+        end
 
-      # write out the result
-      File.open(@global_opts[:output_parameters], 'wb') do |f|
-        f.write(JSON.pretty_generate(res))
+        # run the optimisation
+        a.setup_optim(@global_opts, @assembler_opts)
+        e = Biopsy::Experiment.new(a, 
+                                   options: @assembler_opts,
+                                   threads: @global_opts[:threads],
+                                   verbosity: :loud)
+        res = e.run
+
+        # write out the result
+        File.open(@global_opts[:output_parameters], 'wb') do |f|
+          f.write(JSON.pretty_generate(res))
+        end
       end
 
       # run the final assembly
-      a.setup_final(@global_opts, @assembler_opts)
+      a.setup_full(@global_opts, @assembler_opts)
       unless @global_opts[:skip_final]
+        res.merge! @assembler_opts
         final_assembly a, res
       end
     end # run

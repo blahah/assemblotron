@@ -52,6 +52,10 @@ EOS
   opt :output_parameters,
       "file to which optimal parameters will be written",
       :default => "optimal_parameters.json"
+  opt :optimal_parameters,
+      "JSON file containing optimal parameters to use. If " +
+      "this option is chosen, Assemblotron skips to the final assembly",
+      :type => String
   opt :quiet, "Don't print any logs", :default => false
   opt :verbose, "Print extra information", :default => false
   opt :visualise, "Produce visualisations of the run", :default => false
