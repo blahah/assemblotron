@@ -3,9 +3,9 @@ PATH
   specs:
     assemblotron (0.0.2)
       RubyInline (~> 3.12)
-      biopsy (= 0.1.9)
+      biopsy (= 0.2.0)
       rake (~> 10.3)
-      transrate (= 0.0.12)
+      transrate (= 0.0.14)
       trollop (~> 2.0)
 
 GEM
