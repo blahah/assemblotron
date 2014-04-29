@@ -256,10 +256,24 @@ EOS
 
         # run the optimisation
         a.setup_optim(@global_opts, @assembler_opts)
+        start = nil
+        algorithm = nil
+        if @global_opts[:optimiser] == 'tabu'
+          algorithm = Biopsy::TabuSearch.new(a.parameters)
+        elsif @global_opts[:optimiser] == 'sweeper'
+          algorithm = Biopsy::ParameterSweeper.new(a.parameters)
+        elsif @global_opts[:optimiser].nil?
+          # this is fine
+        else
+          raise NotImplementedError, "please select either tabu or "+
+                                     "sweeper as the optimiser"
+        end
         e = Biopsy::Experiment.new(a, 
                                    options: @assembler_opts,
                                    threads: @global_opts[:threads],
-                                   verbosity: :loud)
+                                   start: start,
+                                   algorithm: algorithm,
+                                   verbosity: @global_opts[:verbosity].to_sym)
         res = e.run
 
         # write out the result
