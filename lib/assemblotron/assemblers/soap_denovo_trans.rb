@@ -55,8 +55,8 @@ class SoapDenovoTrans
   def setup_optim(global_opts, assembler_opts)
     # setup config file for subsetted reads
     puts 'peforming setup for SoapDenovotrans optimisation'
-    left = assembler_opts[:left_subset]
-    right = assembler_opts[:right_subset]
+    left = File.expand_path(assembler_opts[:left_subset])
+    right = File.expand_path(assembler_opts[:right_subset])
     f = create_config(left, right, assembler_opts)
     assembler_opts[:config] = f
   end
@@ -80,8 +80,8 @@ class SoapDenovoTrans
   # @return undefined
   def setup_full(global_opts, assembler_opts)
     # set config file for full read set
-    left = assembler_opts[:left]
-    right = assembler_opts[:right]
+    left = File.expand_path(assembler_opts[:left])
+    right = File.expand_path(assembler_opts[:right])
     f = create_config(left, right, assembler_opts)
     assembler_opts[:config] = f
   end
@@ -167,7 +167,7 @@ class SoapDenovoTrans
     cmd += " -e #{params[:e]}" # delete contigs with coverage no greater than
     cmd += " -t #{params[:t]}" # maximum number of transcripts from one locus
     cmd += " -G #{params[:G]}" # allowed length difference between estimated and filled gap
-    puts cmd
+    # puts cmd
     cmd
   end
 
