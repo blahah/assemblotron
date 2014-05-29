@@ -25,7 +25,7 @@ module Assemblotron
   #   @return [Hash] the assembler-specific options
   class Controller
   
-    attr_accessor :global_opts
+    attr_reader :global_opts
     attr_accessor :assembler_opts
 
     # Creates a new Controller
@@ -53,13 +53,19 @@ module Assemblotron
     # setting target and objectiv directories to those
     # provided with Assemblotron
     def init_settings
-      s = Biopsy::Settings.instance
-      s.set_defaults
+      @settings = Biopsy::Settings.instance
+      @settings.set_defaults
       libdir = File.dirname(__FILE__)
-      s.target_dir = [File.join(libdir, 'assemblotron/assemblers/')]
-      s.objectives_dir = [File.join(libdir, 'assemblotron/objectives/')]
+      @settings.target_dir = [File.join(libdir, 'assemblotron/assemblers/')]
+      @settings.objectives_dir = [File.join(libdir, 'assemblotron/objectives/')]
       @log.debug "initialised Biopsy settings"
     end # init_settings
+
+    def global_opts=(options)
+      @global_opts = options
+      @settings.keep_intermediates = true if @global_opts[:keep_intermediates]
+      @settings.gzip_intermediates = true if @global_opts[:gzip_intermediates]
+    end
 
     # Load global configuration from the config file at
     # +~/.assemblotron+, if it exists.
@@ -87,7 +93,7 @@ module Assemblotron
     # one +.yml+ definition and one +.rb+ constructor per
     # assembler (see AssemblerDefinition).
     def load_assemblers
-      Biopsy::Settings.instance.target_dir.each do |dir|
+      @settings.target_dir.each do |dir|
         Dir.chdir dir do
           Dir['*.yml'].each do |file|
             name = File.basename(file, '.yml')
