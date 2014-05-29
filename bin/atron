@@ -50,9 +50,11 @@ EOS
   opt :subsample_size, "number of reads to use for optimisation",
       :default => 100_000
   opt :optimiser,
-      "Which optimiser to use. Possible: 'tabu' or 'sweeper' (default:'tabu')",
+      "Which optimiser to use. Possible: 'tabu' or 'sweeper'",
       :type => String, 
       :default => "tabu"
+  opt :only_assemble,
+      "If using parameter sweeper don't do any scoring, just run the assembler"
   opt :logfile, "write logs to file", :type => String
   opt :output_parameters,
       "file to which optimal parameters will be written",

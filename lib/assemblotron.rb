@@ -228,11 +228,13 @@ EOS
     def run assembler
       res = nil
       # load reference and create ublast DB
-      @assembler_opts[:reference] = 
-        Transrate::Assembly.new(@assembler_opts[:reference])
-      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference],
-                                               @assembler_opts[:reference])
-      ra.make_reference_db
+      if !@global_opts[:only_assemble]
+        @assembler_opts[:reference] = 
+          Transrate::Assembly.new(@assembler_opts[:reference])
+        ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference],
+                                                 @assembler_opts[:reference])
+        ra.make_reference_db
+      end
 
       # setup the assembler
       a = self.get_assembler assembler
@@ -258,10 +260,13 @@ EOS
         a.setup_optim(@global_opts, @assembler_opts)
         start = nil
         algorithm = nil
+        
+        @settings.objectives_subset = ['assembly_score']
         if @global_opts[:optimiser] == 'tabu'
           algorithm = Biopsy::TabuSearch.new(a.parameters)
         elsif @global_opts[:optimiser] == 'sweeper'
           algorithm = Biopsy::ParameterSweeper.new(a.parameters)
+          @settings.objectives_subset = ['no_score'] if @global_opts[:only_assemble]
         elsif @global_opts[:optimiser].nil?
           # this is fine
         else
