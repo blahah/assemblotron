@@ -2,6 +2,7 @@
 require 'biopsy'
 require 'logger'
 require 'transrate'
+require 'assemblotron/cmd'
 require 'assemblotron/version'
 require 'assemblotron/sample'
 require 'assemblotron/controller'
