@@ -68,29 +68,6 @@ global_opts = Trollop::with_standard_exception_handling parser do
   result
 end
 
-# subcommand parsing
-cmd = ARGV.shift
-assembler = nil
-assmebler_opts = nil
-if cmd.nil?
-  opts 
-elsif cmd == "list"
-  puts controller.list_assemblers
-  exit
-elsif cmd == "run"
-  assembler = ARGV.shift
-elsif controller.assemblers.include? cmd
-  assembler = cmd
-  parser = controller.parser_for_assembler cmd
-  assembler_opts = Trollop::with_standard_exception_handling parser do
-    raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-    parser.parse ARGV
-  end
-else
-  Trollop::die "unknown subcommand #{cmd.inspect}"
-end
-
-# run command
+# run
 controller.global_opts = global_opts
-controller.assembler_opts = assembler_opts
-controller.run assembler
+controller.run
