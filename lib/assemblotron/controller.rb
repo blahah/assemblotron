@@ -15,8 +15,6 @@ module Assemblotron
     #
     # @return [Controller] the Controller
     def initialize
-      @log = Logger.new(STDOUT)
-      @log.level = Logger::DEBUG
       self.load_config
       self.init_settings
       @assemblers = []
@@ -41,7 +39,7 @@ module Assemblotron
       libdir = File.dirname(__FILE__)
       s.target_dir = [File.join(libdir, 'assemblers/')]
       s.objectives_dir = [File.join(libdir, 'objectives/')]
-      @log.debug "initialised Biopsy settings"
+      logger.debug "initialised Biopsy settings"
     end # init_settings
 
     # Load global configuration from the config file at
