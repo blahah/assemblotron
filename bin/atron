@@ -6,21 +6,21 @@ require 'assemblotron'
 controller = Assemblotron::Controller.new
 
 # global option parsing
-SUB_COMMANDS = %w(list run) + controller.assemblers
 parser = Trollop::Parser.new do
   banner <<-EOS
 #{Assemblotron::Controller.header}
 
 Usage:
-  atron [global options] [command] [command-specific options]
+  atron [options]
 
-Commands:
-list        - list the available assemblers
-run         - run optimisation for an assembler
-<assembler> - show options for assembler
-
-Global options:
+Options:
 EOS
+  opt :left,
+      "Path to left reads (in FASTQ or gzipped FASTQ)",
+      :type => String
+  opt :right,
+      "Path to right reads  (in FASTQ or gzipped FASTQ)",
+      :type => String
   opt :threads,
       "Number of threads to use",
       :short => "-t",
@@ -52,6 +52,8 @@ EOS
   opt :output_parameters,
       "file to which optimal parameters will be written",
       :default => "optimal_parameters.json"
+  opt :list_assemblers,
+      "print a list of the available assemblers"
   opt :optimal_parameters,
       "JSON file containing optimal parameters to use. If " +
       "this option is chosen, Assemblotron skips to the final assembly",
@@ -59,13 +61,11 @@ EOS
   opt :quiet, "Don't print any logs", :default => false
   opt :verbose, "Print extra information", :default => false
   opt :visualise, "Produce visualisations of the run", :default => false
-  stop_on SUB_COMMANDS
 end
 
 global_opts = Trollop::with_standard_exception_handling parser do
-  result = parser.parse ARGV
   raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-  result
+  parser.parse ARGV
 end
 
 # run

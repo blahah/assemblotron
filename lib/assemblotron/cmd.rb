@@ -18,6 +18,19 @@ module Transrate
       @cmd
     end
 
-  end
+  end # Cmd
+
+  class Which
+
+    def self.which cmd
+      which = Cmd.new("which #{cmd}")
+  	  which.run
+  	  if !which.status.success?
+        return nil
+      end
+  	  which.stdout.split("\n").first
+    end
+
+  end # Which
 
 end

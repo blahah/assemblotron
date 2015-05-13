@@ -67,6 +67,8 @@ parameters:
     opt: true
     min: 1
     max: 15
-binary:
-  linux:
-    64bit:
+binaries:
+  - SOAPdenovo-Trans-127mer
+  - SOAPdenovo-Trans-31mer
+systems:
+  - linux

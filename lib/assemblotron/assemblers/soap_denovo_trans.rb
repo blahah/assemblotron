@@ -11,7 +11,7 @@ class SoapDenovoTrans
   def initialize
     @count = 0
     @path = which('SOAPdenovo-Trans-127mer')
-    raise "SOAPdenovo-Trans-127mer was not in the PATH" if @path.empty?
+    # raise "SOAPdenovo-Trans-127mer was not in the PATH" if @path.empty?
     @path = @path.first
   end
 
@@ -38,8 +38,8 @@ class SoapDenovoTrans
   # Perform any necessary setup for the assembler
   # prior to running the parameter optimisation.
   #
-  # This method is called by the Controller *after* 
-  # *after* running the subsampler but *before* running
+  # This method is called by the Controller *after*
+  # running the subsampler but *before* running
   # the optimisation.
   #
   # Sets up the SOAPdenovo-trans config file with
@@ -110,7 +110,7 @@ class SoapDenovoTrans
     end
     filename = File.expand_path filename
     puts "config file created: #{filename}"
-    filename 
+    filename
   end
 
   # Merge the default parameters with those provided.

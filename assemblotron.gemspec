@@ -4,7 +4,8 @@ require File.expand_path('../lib/assemblotron/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = 'assemblotron'
-  gem.authors       = [ "Richard Smith" ]
+  gem.authors       = [ "Richard Smith-Unna", "Parsa Akbari",
+                        "Chris Boursnell" ]
   gem.email         = "rds45@cam.ac.uk"
   gem.homepage      = 'https://github.com/blahah/assemblotron'
   gem.summary       = %q{ automatically produce *optimal* assemblies from DNA/RNA sequencing reads }
