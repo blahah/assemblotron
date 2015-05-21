@@ -17,9 +17,11 @@ Options:
 EOS
   opt :left,
       "Path to left reads (in FASTQ or gzipped FASTQ)",
+      :short => "-l",
       :type => String
   opt :right,
       "Path to right reads  (in FASTQ or gzipped FASTQ)",
+      :short => "-r",
       :type => String
   opt :threads,
       "Number of threads to use",
@@ -33,8 +35,7 @@ EOS
   opt :timelimit,
       "Time limit for the optimisation in hours. If the " +
       "run hasn't converged in this time, the best result " +
-      " achieved so far will be returned.",
-      :short => "-l",
+      "achieved so far will be returned.",
       :default => nil,
       :type => Float
   opt :keep_intermediates,
