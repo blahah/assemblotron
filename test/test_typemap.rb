@@ -1,7 +1,7 @@
 require 'helper'
 require 'trollop'
 
-class TestController < Test::Unit::TestCase
+class TestTypeMap < Minitest::Test
 
   context 'TypeMap' do
 

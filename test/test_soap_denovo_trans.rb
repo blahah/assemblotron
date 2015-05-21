@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestSoapDenovoTrans < Test::Unit::TestCase
+class TestSoapDenovoTrans < Minitest::Test
 
   context "Constructor" do
 
@@ -51,7 +51,7 @@ class TestSoapDenovoTrans < Test::Unit::TestCase
 
     should 'require a config file' do
       @params.delete :config
-      assert_raise ArgumentError do
+      assert_raises ArgumentError do
         @s.construct_command(@params)
       end
     end

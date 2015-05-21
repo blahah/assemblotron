@@ -1,7 +1,7 @@
 require 'helper'
 require 'trollop'
 
-class TestController < Test::Unit::TestCase
+class TestController < Minitest::Test
 
   context 'Settings' do
 

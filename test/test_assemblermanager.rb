@@ -1,7 +1,7 @@
 require 'helper'
 require 'trollop'
 
-class TestController < Test::Unit::TestCase
+class TestAssemblerManager < Minitest::Test
 
   context 'AssemblerManager' do
 
@@ -25,20 +25,22 @@ class TestController < Test::Unit::TestCase
     end
 
     should 'list the installed assemblers' do
-      @am.load_assemblers
-      msg = @am.list_assemblers
-      @am.assemblers.each do |a|
-        assert msg =~ %r{#{a}},
-               "assembler #{a} must be listed in list command output"
+      capture_stdout do
+        @am.load_assemblers
+        msg = @am.list_assemblers
+        @am.assemblers.each do |a|
+          assert msg =~ %r{#{a}},
+                 "assembler #{a} must be listed in list command output"
+        end
       end
     end
 
     should 'select installed assemblers by name' do
       ['SoapDenovoTrans', 'sdt'].each do |assembler|
         t = nil
-        assert_nothing_raised { t = @am.get_assembler(assembler) }
-        assert_equal Biopsy::Target, t.class,
-                     'get_assembler must return a Biopsy::Target'
+        t = @am.get_assembler(assembler)
+        assert_equal Assemblotron::AssemblotronTarget, t.class,
+                     'get_assembler must return a Assemblotron::AssemblotronTarget'
         assert (t.name == assembler || t.shortname == assembler),
                'get_assembler must return the correct target'
 
@@ -47,15 +49,15 @@ class TestController < Test::Unit::TestCase
 
     should 'complain helpfully if requested assembler is not installed' do
       @am.load_assemblers
-      assert_raise RuntimeError do
+      assert_raises RuntimeError do
         @am.get_assembler 'not_a_real_assembler'
       end
     end
 
-    should 'generates parser for installed assembler' do
+    should 'generate parser for installed assembler' do
       ['sdt', 'SoapDenovoTrans'].each do |assembler|
         o = nil
-        assert_nothing_raised { o = @am.parser_for_assembler assembler }
+        o = @am.parser_for_assembler assembler
         assert_equal Trollop::Parser, o.class
       end
     end

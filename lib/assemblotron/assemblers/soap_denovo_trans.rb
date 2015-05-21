@@ -165,7 +165,6 @@ class SoapDenovoTrans
     cmd += " -e #{params[:e]}" # delete contigs with coverage no greater than
     cmd += " -t #{params[:t]}" # maximum number of transcripts from one locus
     cmd += " -G #{params[:G]}" # allowed length difference between estimated and filled gap
-    puts cmd
     cmd
   end
 

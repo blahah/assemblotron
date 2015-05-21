@@ -126,6 +126,7 @@ EOS
       end
 
       puts str
+      str
     end # list_assemblers
 
     # Generate an argument parser for the specified assembler

@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestInstaller < Test::Unit::TestCase
+class TestInstaller < Minitest::Test
 
   context 'Installer' do
 
@@ -10,16 +10,15 @@ class TestInstaller < Test::Unit::TestCase
     end
 
     should 'expect a YAML set of download sources for an assembler' do
-
-      assert_equal 1, 2
+      assert false, 'not implemented'
     end
 
     should 'download the appropriate version for the host system' do
-      assert_equal 1, 2
+      assert false, 'not implemented'
     end
 
     should 'install missing assemblers and make them available in PATH' do
-      assert_equal 1, 2
+      assert false, 'not implemented'
     end
 
   end # context

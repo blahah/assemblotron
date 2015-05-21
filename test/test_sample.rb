@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestSample < Test::Unit::TestCase
+class TestSample < Minitest::Test
 
   context 'Sample' do
 
