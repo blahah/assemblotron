@@ -38,20 +38,4 @@ class TestController < Minitest::Test
 
   end # Settings
 
-  context 'Running' do
-
-    should 'be able to subsample input reads' do
-      assert false, 'not implemented'
-    end
-
-    should 'run a final assembly with full reads and optimal parameters' do
-      assert false, 'not implemented'
-    end
-
-    should 'optimise the parameters of any valid assembler' do
-      assert false, 'not implemented'
-    end
-
-  end # Running
-
 end # TestInstaller
