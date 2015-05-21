@@ -148,7 +148,7 @@ EOS
         a.options.each_pair do |param, opts|
           opt param,
               opts[:desc],
-              :type => Controller.class_from_type(opts[:type])
+              :type => TypeMap.class_from_type(opts[:type])
         end
       end
     end # options_for_assembler
