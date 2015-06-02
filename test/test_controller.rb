@@ -6,7 +6,7 @@ class TestController < Minitest::Test
   context 'Settings' do
 
     setup do
-      @c = Assemblotron::Controller.new
+      @c = Assemblotron::Controller.new({})
     end
 
     should 'produce an accurate version header' do
@@ -32,8 +32,15 @@ class TestController < Minitest::Test
                    'objectives dir must be correctly loaded'
     end
 
-    should 'load global config' do
-      assert false, 'TODO: should config be removed?'
+    should "expand read file paths" do
+      options = {
+        :left => "left.fq",
+        :right => "right.fq"
+      }
+      dir = Dir.pwd
+      c = Assemblotron::Controller.new(options)
+      assert_equal File.join(dir, options[:left]), c.options[:left]
+      assert_equal File.join(dir, options[:right]), c.options[:right]
     end
 
   end # Settings

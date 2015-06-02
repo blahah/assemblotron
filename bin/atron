@@ -2,16 +2,17 @@
 
 require 'trollop'
 require 'assemblotron'
-
-controller = Assemblotron::Controller.new
+require 'chronic_duration'
 
 # global option parsing
 parser = Trollop::Parser.new do
   banner <<-EOS
 #{Assemblotron::Controller.header}
 
+An automated transcriptome assembly optimiser
+
 Usage:
-  atron [options]
+  atron --left left.fq --right right.fq [options]
 
 Options:
 EOS
@@ -19,56 +20,83 @@ EOS
       "Path to left reads (in FASTQ or gzipped FASTQ)",
       :short => "-l",
       :type => String
+
   opt :right,
-      "Path to right reads  (in FASTQ or gzipped FASTQ)",
+      "Path to right reads (in FASTQ or gzipped FASTQ)",
       :short => "-r",
       :type => String
+
+  opt :insert_size,
+      "Mean insert size",
+      :default => 200
+
+  opt :insert_sd,
+      "Insert size standard deviation",
+      :default => 80
+
   opt :threads,
       "Number of threads to use",
       :short => "-t",
       :default => 4
+
   opt :memlimit,
       "Maximum amount of RAM to use in GB (note, not all assemblers " +
       "respect this setting)",
       :short => "-m",
       :default => 2
+
   opt :timelimit,
-      "Time limit for the optimisation in hours. If the " +
+      "Time limit for the optimisation. If the " +
       "run hasn't converged in this time, the best result " +
-      "achieved so far will be returned.",
+      "achieved so far will be returned. (e.g. 20h or 16m30s)",
       :default => nil,
-      :type => Float
+      :type => String
+
   opt :keep_intermediates,
       "Keep intermediate files produced during during optimisation.",
       :default => false
+
   opt :gzip_intermediates,
       "gzip intermediate files (onlys takes effect if " +
       "--keep-intermediates is on)",
       :default => false
+
   opt :skip_subsample, "skip subsampling step", :default => false
+
   opt :skip_final, "skip final assembly step", :default => false
+
   opt :subsample_size, "number of reads to use for optimisation",
       :default => 100_000
+
   opt :logfile, "write logs to file", :type => String
+
   opt :output_parameters,
       "file to which optimal parameters will be written",
       :default => "optimal_parameters.json"
+
   opt :list_assemblers,
       "print a list of the available assemblers"
+
   opt :optimal_parameters,
       "JSON file containing optimal parameters to use. If " +
       "this option is chosen, Assemblotron skips to the final assembly",
       :type => String
+
   opt :quiet, "Don't print any logs", :default => false
+
   opt :verbose, "Print extra information", :default => false
+
   opt :visualise, "Produce visualisations of the run", :default => false
 end
 
-global_opts = Trollop::with_standard_exception_handling parser do
+options = Trollop::with_standard_exception_handling parser do
   raise Trollop::HelpNeeded if ARGV.empty? # show help screen
   parser.parse ARGV
 end
 
-# run
-controller.global_opts = global_opts
-controller.run
+if !(options[:timelimit].nil?)
+  ChronicDuration.raise_exceptions = true
+  options[:timelimit] = ChronicDuration.parse(options[:timelimit]);
+end
+
+Assemblotron::Controller.new(options).run

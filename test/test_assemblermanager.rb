@@ -3,10 +3,11 @@ require 'trollop'
 
 class TestAssemblerManager < Minitest::Test
 
-  context 'AssemblerManager' do
+  context 'Setup' do
 
     setup do
-      @am = Assemblotron::AssemblerManager.new
+      @c = Assemblotron::Controller.new({})
+      @am = Assemblotron::AssemblerManager.new({})
     end
 
     should 'load the installed assemblers' do
@@ -25,13 +26,11 @@ class TestAssemblerManager < Minitest::Test
     end
 
     should 'list the installed assemblers' do
-      capture_stdout do
-        @am.load_assemblers
-        msg = @am.list_assemblers
-        @am.assemblers.each do |a|
-          assert msg =~ %r{#{a}},
-                 "assembler #{a} must be listed in list command output"
-        end
+      @am.load_assemblers
+      msg = @am.list_assemblers
+      @am.assemblers.each do |a|
+        assert msg =~ %r{#{a}},
+               "assembler #{a} must be listed in list command output"
       end
     end
 
@@ -39,8 +38,8 @@ class TestAssemblerManager < Minitest::Test
       ['SoapDenovoTrans', 'sdt'].each do |assembler|
         t = nil
         t = @am.get_assembler(assembler)
-        assert_equal Assemblotron::AssemblotronTarget, t.class,
-                     'get_assembler must return a Assemblotron::AssemblotronTarget'
+        assert_equal Assemblotron::Assembler, t.class,
+                     'get_assembler must return a Assemblotron::Assembler'
         assert (t.name == assembler || t.shortname == assembler),
                'get_assembler must return the correct target'
 
@@ -54,14 +53,19 @@ class TestAssemblerManager < Minitest::Test
       end
     end
 
-    should 'generate parser for installed assembler' do
-      ['sdt', 'SoapDenovoTrans'].each do |assembler|
-        o = nil
-        o = @am.parser_for_assembler assembler
-        assert_equal Trollop::Parser, o.class
-      end
+    should 'run a specified assembler' do
+      test_dir = File.dirname(__FILE__)
+      left = File.join(test_dir, 'data', 'reads_1.fastq')
+      right = File.join(test_dir, 'data', 'reads_2.fastq')
+      am = Assemblotron::AssemblerManager.new({
+        :left_subset => left,
+        :right_subset => right,
+        :threads => 4,
+        :insert_size => 200
+      })
+      am.run_assembler am.get_assembler('idba')
     end
 
-  end # Assemblers
+  end # Setup
 
 end

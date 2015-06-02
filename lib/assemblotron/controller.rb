@@ -2,30 +2,60 @@ module Assemblotron
 
   # Co-ordinates the entire assembly optimisation process
   #
-  # @!attribute [r] global_opts
+  # @!attribute [r] options
   #   @return [Hash] the global options
-  # @!attribute [r] assembler_opts
+  # @!attribute [r] assembler_options
   #   @return [Hash] the assembler-specific options
   class Controller
 
-    attr_accessor :global_opts
-    attr_accessor :assembler_opts
+    attr_accessor :options
 
     # Creates a new Controller
     #
     # @return [Controller] the Controller
-    def initialize
-      self.load_config
+    def initialize options
       self.init_settings
-      @assemblerman = AssemblerManager.new
+      @options = process_options options
+      @assemblerman = AssemblerManager.new @options
     end # initialize
+
+    # Cleanup and validity checking of global options
+    def process_options options
+      options = options.clone
+      [:left, :right].each do |key|
+        if options.key?(key) && !(options[key].nil?)
+          options[key] = File.expand_path options[key]
+        end
+      end
+      options
+    end
 
     # Runs the program
     def run
-      @assemblerman.list_assemblers if @global_opts[:list_assemblers]
+      if @options[:list_assemblers]
+        puts @assemblerman.list_assemblers
+        return
+      end
+
+      if (@options[:left].nil? || @options[:right].nil?)
+        logger.error "Reads must be provided with --left and --right"
+        logger.error "Try --help for command-line help"
+        exit(1)
+      end
+
+      unless (@options[:timelimit].nil?)
+        logger.info "Time limit set to #{@options[:timelimit]}"
+      end
+
+      subsample_input
+
+      res = @assemblerman.run_all_assemblers
+
+      merge_assemblies res
+
     end
 
-    # Creates a header containing the program name
+    # Create a header containing the program name
     # and the installed version, for inclusion in
     # command-line logging and help.
     #
@@ -44,36 +74,57 @@ module Assemblotron
       s.target_dir = [File.join(libdir, 'assemblers/')]
       s.objectives_dir = [File.join(libdir, 'objectives/')]
       logger.debug "initialised Biopsy settings"
-    end # init_settings
+    end
 
-    # Load global configuration from the config file at
-    # +~/.assemblotron+, if it exists.
-    def load_config
-      config_file = File.join(Dir.home, ".assemblotron")
-      if File.exists? config_file
-        logger.debug "config file found at #{config_file}"
-        config = YAML::load_file(config_file)
-        if config.nil?
-          logger.warn 'config file malformed or empty'
-          return
-        end
-        @config = config.deep_symbolize
+    # Write out metadata from the optimisation run
+    def write_metadata
+      File.open(@options[:output_parameters], 'wb') do |f|
+        f.write(JSON.pretty_generate(res))
       end
-    end # parse_config
+    end
 
     # Run the subsampler on the input reads, storing
-    # the paths to the samples in the assembler_opts
+    # the paths to the samples in the assembler_options
     # hash.
     def subsample_input
-      l = @assembler_opts[:left]
-      r = @assembler_opts[:right]
-      size = @global_opts[:subsample_size]
+
+      if @options[:skip_subsample]
+        logger.info "Skipping subsample step (--skip-subsample is on)"
+        @options[:left_subset] = @options[:left]
+        @options[:right_subset] = @options[:right]
+        return
+      end
+
+      logger.info "Subsampling reads"
+
+      l = @options[:left]
+      r = @options[:right]
+      size = @options[:subsample_size]
 
       s = Sample.new(l, r)
       ls, rs = s.subsample size
 
-      @assembler_opts[:left_subset] = ls
-      @assembler_opts[:right_subset] = rs
+      @options[:left_subset] = ls
+      @options[:right_subset] = rs
+
+    end
+
+    # Merge the final assemblies
+    def merge_assemblies res
+
+      l = @options[:left]
+      r = @options[:right]
+
+      transfuse = Transfuse::Transfuse.new(opts.threads, false)
+      assemblies = res.each_value.map { |assembler| assember[:final] }
+      scores = transfuse.transrate(assemblies, l, r)
+      filtered = transfuse.filter(assemblies, scores)
+      cat = transfuse.concatenate filtered
+      transfuse.load_fasta cat
+      clusters = transfuse.cluster cat
+      best = transfuse.select_contigs(clusters, scores)
+      transfuse.output_contigs(best, cat, opts.output)
+
     end
 
   end # Controller

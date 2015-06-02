@@ -1,85 +1,35 @@
 module Assemblotron
 
-  class AssemblotronTarget < Biopsy::Target
-
-    attr_accessor :binaries, :systems
-
-    # store the values in +:config+, checking they are valid
-    def store_config config
-      logger.error("Definition for #{config[:name]} must specify required binaries") unless config.key?(:binaries)
-      @binaries = config[:binaries]
-      logger.error("Definition for #{config[:name]} must specify supported systems") unless config.key?(:systems)
-      @systems = config[:systems]
-      super config
-    end
-
-  end
-
-  class System
-
-    require 'rbconfig'
-
-    def self.os
-      (
-        host_os = RbConfig::CONFIG['host_os']
-        case host_os
-        when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
-          :windows
-        when /darwin|mac os/
-          :macosx
-        when /linux/
-          :linux
-        when /solaris|bsd/
-          :unix
-        else
-          raise UnsupportedSystemError,
-                "can't install #{@name}, unknown os: #{host_os.inspect}"
-        end
-      )
-    end
-
-    def self.arch
-      Gem::Platform.local.cpu == 'x86_64' ? '64bit' : '32bit'
-    end
-
-  end
-
   class AssemblerManager
 
-    def initialize
+    def initialize options
       @assemblers = []
+      @options = options
       load_assemblers
     end
 
     # Discover and load available assemblers.
-    #
-    # Loads all assemblers included with assemblotron,
-    # then searches any directories listed in the config
-    # file (+~/.assemblotron+) setting +assembler_dirs+ and
-    # loads any assembler definitions found.
-    #
-    # Directories listed in +assembler_dirs+ must contain
-    # one +.yml+ definition and one +.rb+ constructor per
-    # assembler (see AssemblerDefinition).
     def load_assemblers
       Biopsy::Settings.instance.target_dir.each do |dir|
         Dir.chdir dir do
           Dir['*.yml'].each do |file|
             name = File.basename(file, '.yml')
-            target = AssemblotronTarget.new
+            target = Assembler.new
             target.load_by_name name
-            sysmatch = target.systems.any? { |s| System.os == s.to_sym }
-            unless sysmatch
-              logger.info "Assembler #{target.name} is not available for this operating system"
+            unless System.match? target.bindeps[:url]
+              logger.info "Assembler #{target.name} is not available" +
+                          " for this operating system"
               next
             end
-            bin_paths = target.binaries.map { |bin| Which.which bin }
+            bin_paths = target.bindeps[:binaries].map do |bin|
+              Which.which bin
+            end
             missing_bin = bin_paths.any? { |path| path.nil? }
             if missing_bin
               logger.info "Assembler #{target.name} was not installed"
               missing = bin_paths
                           .select{ |path| path.nil? }
-                          .map{ |path, i| target.binaries[i] }
+                          .map{ |path, i| target.bindeps[:binaries][i] }
               logger.info "(missing binaries: #{missing.join(', ')})"
             else
               @assemblers << target
@@ -102,11 +52,11 @@ module Assemblotron
       a
     end # assemblers
 
-    # Produce a help message listing installed assemblers.
+    # Return a help message listing installed assemblers.
     def list_assemblers
 
       if @assemblers.empty?
-        log.warn "No assemblers are installed! Please install some."
+        logger.warn "No assemblers are installed! Please install some."
         return
       end
 
@@ -122,37 +72,11 @@ EOS
       @assemblers.each do |a|
         p = " - #{a.name}"
         p += " (#{a.shortname})" if a.respond_to? :shortname
-        str << p
+        str << p + "\n"
       end
 
-      puts str
       str
     end # list_assemblers
-
-    # Generate an argument parser for the specified assembler
-    # by extracting the parameters that are not intended to be
-    # optimised from the assembler definition.
-    #
-    # @param assembler [String] assembler name or shortname
-    # @return [Trollop::Parser] the argument parser
-    def parser_for_assembler assembler
-      a = self.get_assembler assembler
-      parser = Trollop::Parser.new do
-          banner <<-EOS
-#{Controller.header}
-
-Options for assembler #{assembler}
-EOS
-        opt :reference, "Path to reference proteome file in FASTA format",
-             :type => String,
-             :required => true
-        a.options.each_pair do |param, opts|
-          opt param,
-              opts[:desc],
-              :type => TypeMap.class_from_type(opts[:type])
-        end
-      end
-    end # options_for_assembler
 
     # Given the name of an assembler, get the loaded assembler
     # ready for optimisation.
@@ -168,73 +92,64 @@ EOS
       ret
     end
 
+    # Run optimisation and final assembly for each assembler
+    def run_all_assemblers options
+      res = {}
+
+      Dir.mkdir('final_assemblies') unless options[:skip_final]
+      final_dir = File.expand_path 'final_assemblies'
+
+      @assemblers.each do |assembler|
+        logger.info "Starting optimisation for #{assembler.name}"
+
+        res[assembler.name] = run_assembler assembler
+        logger.info "Optimisation of #{assembler.name} finished"
+
+        # run the final assembly
+        unless options[:skip_final]
+
+          this_final_dir = File.join(final_dir, assembler.name.downcase)
+          Dir.chdir this_final_dir do
+            logger.info "Running full assembly for #{assembler.name}" +
+                        " with optimal parameters"
+            # use the full read set
+            res[:left] = options[:left]
+            res[:right] = options[:right]
+            final = final_assembly assembler, res
+            res[assembler.name][:final] = final
+          end
+
+        end
+      end
+      logger.info "All assemblers optimised"
+      res
+    end
+
+    # Run optimisation for the named assembler
+    #
+    # @param [String] assembler name or shortname
+    def run_assembler assembler
+      # run the optimisation
+      opts = @options.clone
+      opts[:left] = opts[:left_subset]
+      opts[:right] = opts[:right_subset]
+      exp = Biopsy::Experiment.new(assembler,
+                                   options: opts,
+                                   threads: @options[:threads],
+                                   timelimit: @options[:timelimit],
+                                   verbosity: :loud)
+      exp.run
+    end
+
     # Run the final assembly using the specified assembler
     # and the optimal set of parameters.
     #
     # @param assembler [Biopsy::Target] the assembler
     # @param result [Hash] the optimal set of parameters
     #   as chosen by the optimisation algorithm
-    def final_assembly assembler, result
-      Dir.mkdir('final_assembly') unless Dir.exist? 'final_assembly'
-      Dir.chdir('final_assembly') do
-        assembler.run result
-      end
+    def full_assembly assembler, options
+      assembler.run options
     end
-
-    # Run the entire Assemblotron process using the named
-    # assembler using the options stored in #global_opts and
-    # #assembler_opts.
-    #
-    # @param [String] assembler name or shortname
-    def run assembler
-      res = nil
-      # load reference and create ublast DB
-      @assembler_opts[:reference] =
-        Transrate::Assembly.new(@assembler_opts[:reference])
-      ra = Transrate::ReciprocalAnnotation.new(@assembler_opts[:reference],
-                                               @assembler_opts[:reference])
-      ra.make_reference_db
-
-      # setup the assembler
-      a = self.get_assembler assembler
-
-      if @global_opts[:optimal_parameters]
-        logger.info 'optimal parameters provided by user; skipping' +
-                  ' optimisation to perform final assembly'
-        File.open(@global_opts[:optimal_parameters], 'r') do |f|
-          res_json = f.read
-          res = JSON.parse(res_json, symbolize_names: true)
-        end
-      else
-        # subsampling
-        if @global_opts[:skip_subsample]
-          @assembler_opts[:left_subset] = assembler_opts[:left]
-          @assembler_opts[:right_subset] = assembler_opts[:right]
-        else
-          subsample_input
-        end
-
-        # run the optimisation
-        a.setup_optim(@global_opts, @assembler_opts)
-        e = Biopsy::Experiment.new(a,
-                                   options: @assembler_opts,
-                                   threads: @global_opts[:threads],
-                                   verbosity: :loud)
-        res = e.run
-
-        # write out the result
-        File.open(@global_opts[:output_parameters], 'wb') do |f|
-          f.write(JSON.pretty_generate(res))
-        end
-      end
-
-      # run the final assembly
-      a.setup_full(@global_opts, @assembler_opts)
-      unless @global_opts[:skip_final]
-        res.merge! @assembler_opts
-        final_assembly a, res
-      end
-    end # run
 
   end
 

@@ -1,0 +1,52 @@
+---
+name: IDBA-tran
+shortname: idba
+output: {}
+parameters:
+  mink:
+    type: integer
+    opt: true
+    min: 20
+    max: 40
+    step: 10
+  maxk:
+    type: integer
+    opt: true
+    min: 60
+    max: 110
+    step: 20
+  step:
+    type: integer
+    opt: true
+    min: 10
+    max: 20
+    step: 10
+  min_count:
+    type: integer
+    opt: true
+    min: 1
+    max: 21
+    step: 10
+  max_isoforms:
+    type: integer
+    opt: true
+    min: 2
+    max: 10
+    step: 4
+  similar:
+    type: float
+    opt: true
+    min: 0.95
+    max: 1.0
+    step: 0.01
+bindeps:
+  binaries:
+    - idba_tran
+    - fq2fa
+  version:
+    number: 'IDBA-Tran - Iterative de Bruijn Graph Assembler for next-generation transcriptome sequencing data.'
+    command: 'idba_tran'
+  url:
+    64bit:
+      linux: https://github.com/Blahah/idba_tran/releases/download/v1.1.1/idba_tran_v1.1.1_linux_x86_64.tar.gz
+      macosx: https://github.com/Blahah/idba_tran/releases/download/v1.1.1/idba_tran_v1.1.1_osx.tar.gz
