@@ -52,7 +52,7 @@ module Assemblotron
 
       subsample_input
 
-      res = @assemblerman.run_all_assemblers
+      res = @assemblerman.run_all_assemblers @options
 
       merge_assemblies res
 
