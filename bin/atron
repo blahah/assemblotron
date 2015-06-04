@@ -4,6 +4,10 @@ require 'trollop'
 require 'assemblotron'
 require 'chronic_duration'
 
+# path for auto-installed assemblers - only takes effect
+# for subshells of this process
+ENV['PATH'] = "#{ENV['HOME']}/.local/bin:#{ENV['PATH']}"
+
 # global option parsing
 parser = Trollop::Parser.new do
   banner <<-EOS
@@ -76,6 +80,11 @@ EOS
 
   opt :list_assemblers,
       "print a list of the available assemblers"
+
+  opt :install_assemblers,
+      "install an assembler by name or shortname (use 'all' to install " +
+      "all available)",
+      :type => String
 
   opt :optimal_parameters,
       "JSON file containing optimal parameters to use. If " +

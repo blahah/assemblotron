@@ -22,6 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'RubyInline', '~> 3.12'
   gem.add_dependency 'transfuse', '~> 0.1.0'
   gem.add_dependency 'chronic_duration', '~> 0.10.6', '>= 0.10.6'
+  gem.add_dependency 'bindeps', '~> 1.2', '1.2.0'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'minitest', '~> 5.0'

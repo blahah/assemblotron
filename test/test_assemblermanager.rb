@@ -18,9 +18,9 @@ class TestAssemblerManager < Minitest::Test
       assert assembler_count > 0,
              'there must be at least one definition in the assemblers dir'
       @am.load_assemblers
-      assert @am.assemblers.size > 0,
+      assert @am.assembler_names.size > 0,
              'there must be at least one assembler loaded'
-      assert assembler_count <= @am.assemblers.size,
+      assert assembler_count <= @am.assembler_names.size,
              'there must be at least as many loaded' +
              ' names as assembler definitions'
     end
@@ -28,7 +28,7 @@ class TestAssemblerManager < Minitest::Test
     should 'list the installed assemblers' do
       @am.load_assemblers
       msg = @am.list_assemblers
-      @am.assemblers.each do |a|
+      @am.assembler_names.each do |a|
         assert msg =~ %r{#{a}},
                "assembler #{a} must be listed in list command output"
       end
@@ -63,7 +63,18 @@ class TestAssemblerManager < Minitest::Test
         :threads => 4,
         :insert_size => 200
       })
-      am.run_assembler am.get_assembler('idba')
+      # am.run_assembler am.get_assembler('idba')
+    end
+
+    should 'install a specified assembler' do
+      @am.assemblers_uninst.each do |assembler|
+        Dir.mktmpdir do |dir|
+          @am.install_assemblers(assembler.name, dir)
+          bin = assembler.bindeps[:binaries].first
+          assert File.exist?(File.join(dir, 'bin', bin)),
+            "#{bin} should be in #{dir}"
+        end
+      end
     end
 
   end # Setup

@@ -1,6 +1,8 @@
 require 'simplecov'
 require 'coveralls'
 
+ENV['PATH'] = "#{ENV['HOME']}/.local/bin:#{ENV['PATH']}"
+
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   SimpleCov::Formatter::HTMLFormatter,
   Coveralls::SimpleCov::Formatter

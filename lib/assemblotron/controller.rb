@@ -35,6 +35,9 @@ module Assemblotron
       if @options[:list_assemblers]
         puts @assemblerman.list_assemblers
         return
+      elsif @options[:install_assemblers]
+        @assemblerman.install_assemblers(@options[:install_assemblers])
+        return
       end
 
       if (@options[:left].nil? || @options[:right].nil?)

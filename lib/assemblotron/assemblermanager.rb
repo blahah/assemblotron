@@ -2,8 +2,11 @@ module Assemblotron
 
   class AssemblerManager
 
+    attr_accessor :assemblers, :assemblers_uninst
+
     def initialize options
       @assemblers = []
+      @assemblers_uninst = []
       @options = options
       load_assemblers
     end
@@ -24,13 +27,14 @@ module Assemblotron
             bin_paths = target.bindeps[:binaries].map do |bin|
               Which.which bin
             end
-            missing_bin = bin_paths.any? { |path| path.nil? }
+            missing_bin = bin_paths.any? { |path| path.empty? }
             if missing_bin
-              logger.info "Assembler #{target.name} was not installed"
+              logger.debug "Assembler #{target.name} was not installed"
               missing = bin_paths
-                          .select{ |path| path.nil? }
-                          .map{ |path, i| target.bindeps[:binaries][i] }
-              logger.info "(missing binaries: #{missing.join(', ')})"
+                .select{ |path| path.empty? }
+                .map.with_index{ |path, i| target.bindeps[:binaries][i] }
+              logger.debug "(missing binaries: #{missing.join(', ')})"
+              @assemblers_uninst << target
             else
               @assemblers << target
             end
@@ -43,7 +47,7 @@ module Assemblotron
     #
     # @return [Array<String>] names and shortnames (if
     #          applicable) for available assemblers.
-    def assemblers
+    def assembler_names
       a = []
       @assemblers.each do |t|
         a << t.name
@@ -55,28 +59,95 @@ module Assemblotron
     # Return a help message listing installed assemblers.
     def list_assemblers
 
+      str = ""
+
       if @assemblers.empty?
-        logger.warn "No assemblers are installed! Please install some."
-        return
-      end
+        str << "\nNo assemblers are currently installed! Please install some.\n"
+      else
+        str << <<-EOS
 
-      str = Controller.header
-
-      str << <<-EOS
-
-Available assemblers are listed below.
+Installed assemblers are listed below.
 Shortnames are shown in brackets if available.
 
-Assemblers:
-EOS
-      @assemblers.each do |a|
-        p = " - #{a.name}"
-        p += " (#{a.shortname})" if a.respond_to? :shortname
-        str << p + "\n"
+Assemblers installed:
+  EOS
+        @assemblers.each do |a|
+          p = "  - #{a.name}"
+          p += " (#{a.shortname})" if a.respond_to? :shortname
+          str << p + "\n"
+        end
+
       end
 
-      str
+      if @assemblers_uninst.empty?
+        str << "\nAll available assemblers are already installed!\n"
+      else
+        str << <<-EOS
+
+Assemblers that are available to be installed are listed below.
+To install one, use:
+
+atron --install-assemblers <name OR shortname>
+
+Assemblers installable:
+EOS
+
+        @assemblers_uninst.each do |a|
+          p = "  - #{a.name}"
+          p += " (#{a.shortname})" if a.respond_to? :shortname
+          str << p + "\n"
+        end
+      end
+
+      str + "\n"
     end # list_assemblers
+
+    def install_assemblers(which='all', dir='~/.local')
+
+      dir = File.expand_path dir
+      unless File.exist? dir
+        FileUtils.mkdir_p dir
+      end
+
+      assembler_deps = {}
+      Biopsy::Settings.instance.target_dir.each do |dir|
+        Dir.chdir dir do
+          Dir['*.yml'].each do |file|
+            dephash = YAML.load_file file
+            assembler_deps[dephash['name']] = dephash['bindeps']
+            assembler_deps[dephash['shortname']] = dephash['bindeps']
+          end
+        end
+      end
+
+      assemblers = [which]
+      if which == 'all'
+        assemblers = assembler_deps.keys
+      end
+
+      to_install = assembler_deps.keys.select do |a|
+        assemblers.include?(a)
+      end
+
+      if to_install.empty?
+        logger.error "Tried to install #{which}, but it wasn't available"
+        exit(1)
+      end
+
+      to_install.each do |assembler|
+        bindeps = assembler_deps[assembler]
+        unpack = bindeps.key?('unpack') ? bindeps['unpack'] : true;
+        libraries = bindeps.key?('libraries') ? bindeps['libraries'] : []
+        dep = Bindeps::Dependency.new(assembler,
+          bindeps['binaries'],
+          bindeps['version'],
+          bindeps['url'],
+          unpack,
+          libraries)
+        dep.install_missing dir
+      end
+
+    end
 
     # Given the name of an assembler, get the loaded assembler
     # ready for optimisation.

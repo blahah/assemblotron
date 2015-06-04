@@ -1,8 +1,11 @@
 # coding: utf-8
+require 'assemblotron/hash'
+require 'bindeps'
 require 'fixwhich'
 require 'transrate'
 require 'biopsy'
 require 'transfuse'
+require 'fileutils'
 require 'assemblotron/cmd'
 require 'assemblotron/version'
 require 'assemblotron/sample'
