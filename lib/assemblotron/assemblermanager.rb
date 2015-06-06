@@ -192,7 +192,7 @@ EOS
             # use the full read set
             res[:left] = options[:left]
             res[:right] = options[:right]
-            final = final_assembly assembler, res
+            final = full_assembly assembler, res
             res[assembler.name][:final] = final
           end
 
