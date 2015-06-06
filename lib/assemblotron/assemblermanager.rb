@@ -169,7 +169,7 @@ EOS
 
       unless options[:skip_final]
         if (File.exist? 'final_assemblies')
-          log.warn("Directory final_assemblies already exists. Some results may be overwritten.")
+          logger.warn("Directory final_assemblies already exists. Some results may be overwritten.")
         end
         FileUtils.mkdir_p('final_assemblies')
         final_dir = File.expand_path 'final_assemblies'
