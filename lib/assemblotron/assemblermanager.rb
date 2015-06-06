@@ -209,10 +209,22 @@ EOS
       opts = @options.clone
       opts[:left] = opts[:left_subset]
       opts[:right] = opts[:right_subset]
+      if @options[:algorithm] == 'sweep'
+        logger.info("Using full parameter sweep optimiser")
+        algorithm = Biopsy::ParameterSweeper.new(assembler.parameters)
+      elsif @options[:algoritm] == 'tabu'
+        logger.info("Using tabu search optimiser")
+        algorithm = Biopsy::TabuSearch.new(assembler.parameters)
+      else
+        logger.error("Optimiser '#{@options[:algoritm]}' is not a valid optiion")
+        logger.error("Please check the options using --help")
+        exit(1)
+      end
       exp = Biopsy::Experiment.new(assembler,
                                    options: opts,
                                    threads: @options[:threads],
                                    timelimit: @options[:timelimit],
+                                   algorithm: algorithm,
                                    verbosity: :loud)
       exp.run
     end

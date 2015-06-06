@@ -56,6 +56,24 @@ EOS
       :default => nil,
       :type => String
 
+  opt :subsample_size, "number of reads to use for optimisation",
+      :default => 100_000
+
+  opt :optimiser, "optimiser to use [tabu or sweep]", :default => 'tabu'
+
+  opt :skip_subsample, "skip subsampling step", :default => false
+
+  opt :skip_final, "skip final assembly step", :default => false
+
+  opt :output_parameters,
+      "file to which optimal parameters will be written",
+      :default => "optimal_parameters.json"
+
+  opt :optimal_parameters,
+      "JSON file containing optimal parameters to use. If " +
+      "this option is chosen, Assemblotron skips to the final assembly",
+      :type => String
+
   opt :keep_intermediates,
       "Keep intermediate files produced during during optimisation.",
       :default => false
@@ -65,19 +83,6 @@ EOS
       "--keep-intermediates is on)",
       :default => false
 
-  opt :skip_subsample, "skip subsampling step", :default => false
-
-  opt :skip_final, "skip final assembly step", :default => false
-
-  opt :subsample_size, "number of reads to use for optimisation",
-      :default => 100_000
-
-  opt :logfile, "write logs to file", :type => String
-
-  opt :output_parameters,
-      "file to which optimal parameters will be written",
-      :default => "optimal_parameters.json"
-
   opt :list_assemblers,
       "print a list of the available assemblers"
 
@@ -86,10 +91,7 @@ EOS
       "all available)",
       :type => String
 
-  opt :optimal_parameters,
-      "JSON file containing optimal parameters to use. If " +
-      "this option is chosen, Assemblotron skips to the final assembly",
-      :type => String
+  opt :logfile, "write logs to file", :type => String
 
   opt :quiet, "Don't print any logs", :default => false
 
