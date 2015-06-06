@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'transrate', '1.0.0.beta4'
   gem.add_dependency 'fixwhich', '~> 1.0', '>= 1.0.2'
   gem.add_dependency 'RubyInline', '~> 3.12'
-  gem.add_dependency 'transfuse', '~> 0.1.0'
+  gem.add_dependency 'transfuse', '~> 0.1.2'
   gem.add_dependency 'chronic_duration', '~> 0.10.6', '>= 0.10.6'
   gem.add_dependency 'bindeps', '~> 1.2', '1.2.0'
 
