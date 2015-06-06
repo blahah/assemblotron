@@ -12,7 +12,7 @@ class AssemblyScore < Biopsy::ObjectiveFunction
   # @return [Float] Assembly score,
   def run(raw_output, output_files, threads)
     return 0 if raw_output.nil?
-    raw_output.assembly_optimal_score.first
+    raw_output.assembly_optimal_score('assembly').first
   end
 
 end
