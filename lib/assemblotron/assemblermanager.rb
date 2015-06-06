@@ -185,6 +185,7 @@ EOS
         unless options[:skip_final]
 
           this_final_dir = File.join(final_dir, assembler.name.downcase)
+          FileUtils.mkdir_p this_final_dir
           Dir.chdir this_final_dir do
             logger.info "Running full assembly for #{assembler.name}" +
                         " with optimal parameters"
