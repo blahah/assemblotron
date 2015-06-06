@@ -167,8 +167,13 @@ EOS
     def run_all_assemblers options
       res = {}
 
-      Dir.mkdir('final_assemblies') unless options[:skip_final]
-      final_dir = File.expand_path 'final_assemblies'
+      unless options[:skip_final]
+        if (File.exist? 'final_assemblies')
+          log.warn("Directory final_assemblies already exists. Some results may be overwritten.")
+        end
+        FileUtils.mkdir_p('final_assemblies')
+        final_dir = File.expand_path 'final_assemblies'
+      end
 
       @assemblers.each do |assembler|
         logger.info "Starting optimisation for #{assembler.name}"
