@@ -167,6 +167,22 @@ EOS
     def run_all_assemblers options
       res = {}
 
+      subset = false
+      unless options[:assemblers] == 'all'
+        subset = options[:assemblers].split(',')
+        missing = []
+        subset.each do |choice|
+          missing < choice unless @assemblers.any do |a|
+            a.name == choice || a.shortname == choice
+          end
+        end
+        unless missing.empty?
+          log.error "The specified assemblers (#{missing.join(', ')}) were not valid choices"
+          log.error "Please choose from the options in --list-assembler"
+          exit(1)
+        end
+      end
+
       unless options[:skip_final]
         if (File.exist? 'final_assemblies')
           logger.warn("Directory final_assemblies already exists. Some results may be overwritten.")
