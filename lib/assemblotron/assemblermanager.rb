@@ -172,7 +172,7 @@ EOS
         subset = options[:assemblers].split(',')
         missing = []
         subset.each do |choice|
-          missing < choice unless @assemblers.any do |a|
+          missing < choice unless @assemblers.any? do |a|
             a.name == choice || a.shortname == choice
           end
         end
@@ -192,6 +192,12 @@ EOS
       end
 
       @assemblers.each do |assembler|
+        if subset
+          unless subset.include?(assembler.name) || subset.
+                  include?(assembler.shortname)
+            next
+          end
+        end
         logger.info "Starting optimisation for #{assembler.name}"
 
         res[assembler.name] = run_assembler assembler
