@@ -59,6 +59,9 @@ EOS
   opt :subsample_size, "number of reads to use for optimisation",
       :default => 100_000
 
+  opt :assemblers, "assemblers to use as comma separated list of names " +
+      "or shortnames - see --list-assemblers", :default => 'all'
+
   opt :optimiser, "optimiser to use [tabu or sweep]", :default => 'tabu'
 
   opt :skip_subsample, "skip subsampling step", :default => false
