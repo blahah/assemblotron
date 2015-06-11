@@ -27,7 +27,8 @@ class SoapDenovoTrans
     run_soap params
 
     # retrieve output
-    scaffolds = Dir['*.scafSeq']
+    `grep -v "^$" sdt.scafSeq > sdt.fixed`
+    scaffolds = Dir['sdt.fixed']
     return nil if scaffolds.empty?
     scaffolds = scaffolds.first
     return nil if File.size(scaffolds) == 0
