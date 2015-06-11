@@ -191,10 +191,12 @@ EOS
         final_dir = File.expand_path 'final_assemblies'
       end
 
+      results_filepath = Time.now.to_s.gsub(/ /, '_') + '.json'
+
       @assemblers.each do |assembler|
         logger.info "Starting optimisation for #{assembler.name}"
 
-        res[assembler.name] = run_assembler assembler
+        this_res = run_assembler assembler
         logger.info "Optimisation of #{assembler.name} finished"
 
         # run the final assembly
@@ -205,14 +207,24 @@ EOS
             logger.info "Running full assembly for #{assembler.name}" +
                         " with optimal parameters"
             # use the full read set
-            res[:left] = options[:left]
-            res[:right] = options[:right]
+            this_res[:left] = options[:left]
+            this_res[:right] = options[:right]
+            this_res[:threads] = options[:threads]
             final = final_assembly assembler, res
-            res[assembler.name][:final] = final
+            this_res[:final] = final
           end
 
+          res[assembler.name] = this_res
+
         end
+
+        File.open(results_filepath, 'w') do |out|
+          out.write JSON.pretty_generate(res)
+        end
+        logger.info "Result file updated: #{results.filepath}"
+
       end
+
       logger.info "All assemblers optimised"
       res
     end
