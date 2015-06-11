@@ -172,7 +172,7 @@ EOS
         subset = options[:assemblers].split(',')
         missing = []
         subset.each do |choice|
-          missing < choice unless @assemblers.any do |a|
+          missing < choice unless @assemblers.any? do |a|
             a.name == choice || a.shortname == choice
           end
         end
@@ -192,6 +192,12 @@ EOS
       end
 
       @assemblers.each do |assembler|
+        if subset
+          unless subset.include?(assembler.name) || subset.
+                  include?(assembler.shortname)
+            next
+          end
+        end
         logger.info "Starting optimisation for #{assembler.name}"
 
         res[assembler.name] = run_assembler assembler
@@ -201,13 +207,14 @@ EOS
         unless options[:skip_final]
 
           this_final_dir = File.join(final_dir, assembler.name.downcase)
+          FileUtils.mkdir_p this_final_dir
           Dir.chdir this_final_dir do
             logger.info "Running full assembly for #{assembler.name}" +
                         " with optimal parameters"
             # use the full read set
             res[:left] = options[:left]
             res[:right] = options[:right]
-            final = final_assembly assembler, res
+            final = full_assembly assembler, res
             res[assembler.name][:final] = final
           end
 
@@ -225,14 +232,14 @@ EOS
       opts = @options.clone
       opts[:left] = opts[:left_subset]
       opts[:right] = opts[:right_subset]
-      if @options[:algorithm] == 'sweep'
+      if @options[:optimiser] == 'sweep'
         logger.info("Using full parameter sweep optimiser")
         algorithm = Biopsy::ParameterSweeper.new(assembler.parameters)
-      elsif @options[:algoritm] == 'tabu'
+      elsif @options[:optimiser] == 'tabu'
         logger.info("Using tabu search optimiser")
         algorithm = Biopsy::TabuSearch.new(assembler.parameters)
       else
-        logger.error("Optimiser '#{@options[:algoritm]}' is not a valid optiion")
+        logger.error("Optimiser '#{@options[:optimiser]}' is not a valid optiion")
         logger.error("Please check the options using --help")
         exit(1)
       end
