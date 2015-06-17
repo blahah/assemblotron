@@ -19,7 +19,7 @@ module Assemblotron
 
     # C function to perform reservoir sampling of paired FASTQ
     # records.
-    # 
+    #
     # This function was written in inlined C to give a speedup
     # of around 300x compared to native Ruby.
     #
@@ -36,8 +36,8 @@ module Assemblotron
     builder.include '<stdio.h>'
     builder.include '<strings.h>'
     builder.c <<SRC
-      void subsampleC(VALUE n, VALUE seed, 
-                      VALUE left, VALUE right, 
+      void c_subsample(VALUE n, VALUE seed,
+                      VALUE left, VALUE right,
                       VALUE leftout, VALUE rightout) {
         char * filename_left;
         char * filename_right;
@@ -64,7 +64,7 @@ module Assemblotron
         seedc = NUM2INT(seed);
         const char *res_l[nc];
         const char *res_r[nc];
- 
+
         srand(seedc);
         filename_left = StringValueCStr(left);
         filename_right = StringValueCStr(right);
@@ -92,7 +92,7 @@ module Assemblotron
           read_r += getline(&line_r2, &len, rfp);
           read_r += getline(&line_r3, &len, rfp);
           read_r += getline(&line_r4, &len, rfp);
-          
+
           char * str_l = (char *) malloc(400);
           char * str_r = (char *) malloc(400);
           strcpy (str_l, line_l1);
@@ -162,13 +162,13 @@ SRC
     #   paths to the left and right FASTQ samples.
     def subsample(n, seed = 1337)
       ldir = File.dirname(@left)
-      loutfile = File.join(ldir, "subset.#{File.basename @left}")
+      loutfile = File.join(ldir, "subset.#{seed}.#{File.basename @left}")
 
       rdir = File.dirname(@right)
-      routfile = File.join(rdir, "subset.#{File.basename @right}")
+      routfile = File.join(rdir, "subset.#{seed}.#{File.basename @right}")
 
-      subsampleC(n, seed, @left, @right, loutfile, routfile)
-      
+      c_subsample(n, seed, @left, @right, loutfile, routfile)
+
       [loutfile, routfile]
     end
 
