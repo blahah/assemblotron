@@ -53,7 +53,7 @@ module Assemblotron
       subsample_input
 
       res = @assemblerman.run_all_assemblers @options
-
+      write_metadata res
       merge_assemblies res
 
     end
@@ -80,7 +80,7 @@ module Assemblotron
     end
 
     # Write out metadata from the optimisation run
-    def write_metadata
+    def write_metadata res
       File.open(@options[:output_parameters], 'wb') do |f|
         f.write(JSON.pretty_generate(res))
       end
@@ -118,7 +118,7 @@ module Assemblotron
       l = @options[:left]
       r = @options[:right]
 
-      transfuse = Transfuse::Transfuse.new(opts.threads, false)
+      transfuse = Transfuse::Transfuse.new(@options[:threads], false)
       assemblies = res.each_value.map { |assembler| assember[:final] }
       scores = transfuse.transrate(assemblies, l, r)
       filtered = transfuse.filter(assemblies, scores)
@@ -126,7 +126,7 @@ module Assemblotron
       transfuse.load_fasta cat
       clusters = transfuse.cluster cat
       best = transfuse.select_contigs(clusters, scores)
-      transfuse.output_contigs(best, cat, opts.output)
+      transfuse.output_contigs(best, cat, 'merged.fa')
 
     end
 
