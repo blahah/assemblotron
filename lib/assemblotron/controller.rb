@@ -118,7 +118,7 @@ module Assemblotron
       l = @options[:left]
       r = @options[:right]
 
-      transfuse = Transfuse::Transfuse.new(opts.threads, false)
+      transfuse = Transfuse::Transfuse.new(@options[:threads], false)
       assemblies = res.each_value.map { |assembler| assember[:final] }
       scores = transfuse.transrate(assemblies, l, r)
       filtered = transfuse.filter(assemblies, scores)
@@ -126,7 +126,7 @@ module Assemblotron
       transfuse.load_fasta cat
       clusters = transfuse.cluster cat
       best = transfuse.select_contigs(clusters, scores)
-      transfuse.output_contigs(best, cat, opts.output)
+      transfuse.output_contigs(best, cat, 'merged.fa')
 
     end
 
