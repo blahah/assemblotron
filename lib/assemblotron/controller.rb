@@ -100,12 +100,15 @@ module Assemblotron
 
       logger.info "Subsampling reads"
 
+      seed = @options[:seed]
+      seed = Time.now.to_i if seed == -1
+      logger.info "Using random seed #{seed}"
       l = @options[:left]
       r = @options[:right]
       size = @options[:subsample_size]
 
       s = Sample.new(l, r)
-      ls, rs = s.subsample size
+      ls, rs = s.subsample(size, seed)
 
       @options[:left_subset] = ls
       @options[:right_subset] = rs
