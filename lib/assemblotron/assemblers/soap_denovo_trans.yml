@@ -28,26 +28,18 @@ parameters:
     type: integer
     opt: true
     min: 21
-    max: 81
+    max: 61
     step: 10
   d:
     type: integer
     opt: true
     min: 0
-    max: 6
-    step: 3
+    max: 5
   e:
     type: integer
     opt: true
-    min: 1
-    max: 6
-    step: 4
-  t:
-    type: integer
-    opt: true
-    min: 1
-    max: 13
-    step: 4
+    min: 0
+    max: 5
 bindeps:
   binaries:
     - SOAPdenovo-Trans-127mer
