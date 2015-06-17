@@ -53,7 +53,7 @@ module Assemblotron
       subsample_input
 
       res = @assemblerman.run_all_assemblers @options
-
+      write_metadata res
       merge_assemblies res
 
     end
@@ -80,7 +80,7 @@ module Assemblotron
     end
 
     # Write out metadata from the optimisation run
-    def write_metadata
+    def write_metadata res
       File.open(@options[:output_parameters], 'wb') do |f|
         f.write(JSON.pretty_generate(res))
       end
