@@ -107,8 +107,14 @@ module Assemblotron
       r = @options[:right]
       size = @options[:subsample_size]
 
-      s = Sample.new(l, r)
-      ls, rs = s.subsample(size, seed)
+      ldir = File.dirname l
+      ls = File.join(ldir, "subset.#{size}.#{seed}.#{File.basename l}")
+      rdir = File.dirname r
+      rs = File.join(rdir, "subset.#{size}.#{seed}.#{File.basename r}")
+
+      s = Seqtk::Seqtk.new
+      s.sample(l, ls, size, seed)
+      s.sample(r, rs, size, seed)
 
       @options[:left_subset] = ls
       @options[:right_subset] = rs
