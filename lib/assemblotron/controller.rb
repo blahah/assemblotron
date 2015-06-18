@@ -8,6 +8,9 @@ module Assemblotron
   #   @return [Hash] the assembler-specific options
   class Controller
 
+    require 'seqtkrb'
+    include Seqtk
+
     attr_accessor :options
 
     # Creates a new Controller
@@ -107,14 +110,16 @@ module Assemblotron
       r = @options[:right]
       size = @options[:subsample_size]
 
-      ldir = File.dirname l
-      ls = File.join(ldir, "subset.#{size}.#{seed}.#{File.basename l}")
-      rdir = File.dirname r
-      rs = File.join(rdir, "subset.#{size}.#{seed}.#{File.basename r}")
-
-      s = Seqtk::Seqtk.new
-      s.sample(l, ls, size, seed)
-      s.sample(r, rs, size, seed)
+      sampler = Sampler.new
+      if @options[:sampler] == "stream"
+        ls, rs = sampler.sample_stream(l, r, size, seed)
+      elsif @options[:sampler] == "graph"
+        ls, rs = sampler.sample_graph(l, r, size, seed)
+      else
+        logger.error "sampler #{@options[:sampler]} was not a valid choice"
+        logger.error "please user --help to see the options"
+        exit 1
+      end
 
       @options[:left_subset] = ls
       @options[:right_subset] = rs
