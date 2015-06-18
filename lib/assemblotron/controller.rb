@@ -8,6 +8,9 @@ module Assemblotron
   #   @return [Hash] the assembler-specific options
   class Controller
 
+    require 'seqtkrb'
+    include Seqtk
+
     attr_accessor :options
 
     # Creates a new Controller
@@ -112,7 +115,7 @@ module Assemblotron
       rdir = File.dirname r
       rs = File.join(rdir, "subset.#{size}.#{seed}.#{File.basename r}")
 
-      s = Seqtk::Seqtk.new
+      s = Seqtk.new
       s.sample(l, ls, size, seed)
       s.sample(r, rs, size, seed)
 
