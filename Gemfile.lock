@@ -2,11 +2,11 @@ PATH
   remote: .
   specs:
     assemblotron (0.0.2)
-      RubyInline (~> 3.12)
-      bindeps (~> 1.2, = 1.2.0)
+      bindeps (~> 1.2, >= 1.2.0)
       biopsy (= 0.2.1)
       chronic_duration (~> 0.10.6, >= 0.10.6)
       fixwhich (~> 1.0, >= 1.0.2)
+      seqtkrb (~> 0.1, >= 0.1.0)
       transfuse (~> 0.1.4)
       transrate (= 1.0.0)
       trollop (~> 2.0)
@@ -15,9 +15,6 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    RubyInline (3.12.4)
-      ZenTest (~> 4.3)
-    ZenTest (4.11.0)
     ansi (1.5.0)
     awesome_print (1.6.1)
     bindeps (1.2.0)
@@ -96,6 +93,9 @@ GEM
     ruby-progressbar (1.7.5)
     rubystats (0.2.3)
     rubyvis (0.5.2)
+    seqtkrb (0.1.0)
+      bindeps
+      fixwhich
     shoulda-context (1.2.1)
     simplecov (0.10.0)
       docile (~> 1.1.0)
