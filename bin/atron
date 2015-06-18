@@ -56,8 +56,11 @@ EOS
       :default => nil,
       :type => String
 
-  opt :subsample_size, "number of reads to use for optimisation",
-      :default => 100_000
+  opt :subsample_size, "proportion of reads to use for optimisation",
+      :default => 0.1
+
+  opt :sampler, "which sampler to use (graph or stream)",
+      :default => 'stream'
 
   opt :seed, "seed random number generator for subsampling " +
              "(default current time)", :default => -1
