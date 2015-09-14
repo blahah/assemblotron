@@ -2,9 +2,9 @@ graphsample:
   binaries:
     - graphsample
   version:
-    number: 'v0.0.1'
+    number: 'v0.0.2'
     command: 'graphsample --version'
   url:
     64bit:
-      linux: https://github.com/Blahah/graphsample/releases/download/v0.0.1/graphsample_0.0.1_linux.tar.gz
-      macosx: https://github.com/Blahah/graphsample/releases/download/v0.0.1/graphsample_0.0.osx.tar.gz
+      linux: https://github.com/Blahah/graphsample/releases/download/v0.0.2/graphsample_0.0.2_linux.tar.gz
+      macosx: https://github.com/Blahah/graphsample/releases/download/v0.0.2/graphsample_0.0.2_osx.tar.gz
