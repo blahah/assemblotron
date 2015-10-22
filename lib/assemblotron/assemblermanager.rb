@@ -221,7 +221,7 @@ EOS
         File.open(results_filepath, 'w') do |out|
           out.write JSON.pretty_generate(res)
         end
-        logger.info "Result file updated: #{results.filepath}"
+        logger.info "Result file updated: #{results_filepath}"
 
       end
 
