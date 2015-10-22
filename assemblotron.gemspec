@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'yell', '~> 2.0', '>= 2.0.4'
   gem.add_dependency 'biopsy', '0.2.1'
   gem.add_dependency 'trollop', '~> 2.0'
-  gem.add_dependency 'transrate', '1.0.0'
+  gem.add_dependency 'transrate', '~> 1.0', '>= 1.0.1'
   gem.add_dependency 'fixwhich', '~> 1.0', '>= 1.0.2'
   gem.add_dependency 'transfuse', '~> 0.1.4'
   gem.add_dependency 'chronic_duration', '~> 0.10.6', '>= 0.10.6'
