@@ -23,3 +23,5 @@ dryrun*
 
 # backups
 \#*
+
+.DS_Store
