@@ -8,9 +8,6 @@ module Assemblotron
   #   @return [Hash] the assembler-specific options
   class Controller
 
-    require 'seqtkrb'
-    include Seqtk
-
     attr_accessor :options
 
     # Creates a new Controller
@@ -56,7 +53,7 @@ module Assemblotron
       subsample_input
 
       res = @assemblerman.run_all_assemblers @options
-      write_metadata res
+
       merge_assemblies res
 
     end
@@ -83,7 +80,7 @@ module Assemblotron
     end
 
     # Write out metadata from the optimisation run
-    def write_metadata res
+    def write_metadata
       File.open(@options[:output_parameters], 'wb') do |f|
         f.write(JSON.pretty_generate(res))
       end
@@ -103,23 +100,12 @@ module Assemblotron
 
       logger.info "Subsampling reads"
 
-      seed = @options[:seed]
-      seed = Time.now.to_i if seed == -1
-      logger.info "Using random seed #{seed}"
       l = @options[:left]
       r = @options[:right]
       size = @options[:subsample_size]
 
-      sampler = Sampler.new
-      if @options[:sampler] == "stream"
-        ls, rs = sampler.sample_stream(l, r, size, seed)
-      elsif @options[:sampler] == "graph"
-        ls, rs = sampler.sample_graph(l, r, size, seed)
-      else
-        logger.error "sampler #{@options[:sampler]} was not a valid choice"
-        logger.error "please user --help to see the options"
-        exit 1
-      end
+      s = Sample.new(l, r)
+      ls, rs = s.subsample size
 
       @options[:left_subset] = ls
       @options[:right_subset] = rs
@@ -132,7 +118,7 @@ module Assemblotron
       l = @options[:left]
       r = @options[:right]
 
-      transfuse = Transfuse::Transfuse.new(@options[:threads], false)
+      transfuse = Transfuse::Transfuse.new(opts.threads, false)
       assemblies = res.each_value.map { |assembler| assember[:final] }
       scores = transfuse.transrate(assemblies, l, r)
       filtered = transfuse.filter(assemblies, scores)
@@ -140,7 +126,7 @@ module Assemblotron
       transfuse.load_fasta cat
       clusters = transfuse.cluster cat
       best = transfuse.select_contigs(clusters, scores)
-      transfuse.output_contigs(best, cat, 'merged.fa')
+      transfuse.output_contigs(best, cat, opts.output)
 
     end
 
