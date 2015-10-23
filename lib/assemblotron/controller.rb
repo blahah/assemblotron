@@ -57,7 +57,10 @@ module Assemblotron
 
       res = @assemblerman.run_all_assemblers @options
       write_metadata res
-      merge_assemblies res
+
+      unless @options[:skip_final]
+        merge_assemblies res
+      end
 
     end
 
