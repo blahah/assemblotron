@@ -224,14 +224,14 @@ EOS
 
           end
 
-          res[assembler.name] = this_res
-
         end
+
+        res[assembler.name] = this_res
 
         File.open(results_filepath, 'w') do |out|
           out.write JSON.pretty_generate(res)
         end
-        
+
         logger.info "Result file updated: #{results_filepath}"
 
       end
