@@ -20,3 +20,8 @@ doc/
 
 # dry run test data
 dryrun*
+
+# backups
+\#*
+
+.DS_Store

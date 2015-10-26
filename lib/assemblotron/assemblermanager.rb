@@ -165,7 +165,6 @@ EOS
 
     # Run optimisation and final assembly for each assembler
     def run_all_assemblers options
-      res = {}
 
       subset = false
       unless options[:assemblers] == 'all'
@@ -191,15 +190,18 @@ EOS
         final_dir = File.expand_path 'final_assemblies'
       end
 
+      res = {}
       results_filepath = Time.now.to_s.gsub(/ /, '_') + '.json'
 
       @assemblers.each do |assembler|
+
         if subset
-          unless subset.include?(assembler.name) || subset.
-                  include?(assembler.shortname)
+          unless subset.include?(assembler.name) ||
+                 subset.include?(assembler.shortname)
             next
           end
         end
+
         logger.info "Starting optimisation for #{assembler.name}"
 
         this_res = run_assembler assembler
@@ -217,18 +219,19 @@ EOS
             this_res[:left] = options[:left]
             this_res[:right] = options[:right]
             this_res[:threads] = options[:threads]
-            final = final_assembly assembler, res
+            final = final_assembly(assembler, res)
             this_res[:final] = final
 
           end
 
-          res[assembler.name] = this_res
-
         end
+
+        res[assembler.name] = this_res
 
         File.open(results_filepath, 'w') do |out|
           out.write JSON.pretty_generate(res)
         end
+
         logger.info "Result file updated: #{results_filepath}"
 
       end
