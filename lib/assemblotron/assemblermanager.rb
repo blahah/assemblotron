@@ -248,17 +248,7 @@ EOS
       opts = @options.clone
       opts[:left] = opts[:left_subset]
       opts[:right] = opts[:right_subset]
-      if @options[:optimiser] == 'sweep'
-        logger.info("Using full parameter sweep optimiser")
-        algorithm = Biopsy::ParameterSweeper.new(assembler.parameters)
-      elsif @options[:optimiser] == 'tabu'
-        logger.info("Using tabu search optimiser")
-        algorithm = Biopsy::TabuSearch.new(assembler.parameters)
-      else
-        logger.error("Optimiser '#{@options[:optimiser]}' is not a valid optiion")
-        logger.error("Please check the options using --help")
-        exit(1)
-      end
+      algorithm = choose_algorithm assembler
       exp = Biopsy::Experiment.new(assembler,
                                    options: opts,
                                    threads: @options[:threads],
@@ -277,6 +267,69 @@ EOS
     def full_assembly assembler, options
       assembler.run options
     end
+
+    # Choose which optimisation algorithm to use
+    def choose_algorithm(target, run_id, log:true)
+      if @options[:optimiser] == 'sweep'
+        logger.info("Using full parameter sweep optimiser") if log
+        return Biopsy::ParameterSweeper.new(target.parameters, run_id)
+      elsif @options[:optimiser] == 'tabu'
+        logger.info("Using tabu search optimiser") if log
+        return Biopsy::TabuSearch.new(target.parameters, run_id)
+      else
+        logger.error("Optimiser '#{@options[:optimiser]}' is not a valid option")
+        logger.error("Please check the options using --help")
+        exit(1)
+      end
+    end
+
+    # Run a simulated optimisation
+    #
+    # @param infile [String] path to csv file of pre-calculated results
+    def run_simulated infile
+      simulator = Simulator.new
+      simulator.setup infile
+      choose_algorithm(simulator, 0) # just to log choice
+
+      logger.info "Starting simulation for provided data (100 replicates)"
+
+      # make a nice directory name
+      t = Time.now
+      parts = %w[y m d H M S Z].map{ |p| t.strftime "%#{p}" }
+      dirname = "simulation_#{parts.join('_')}"
+      Dir.mkdir(dirname) && Dir.chdir(dirname) do
+
+        results = {}
+
+        100.times do |run_no|
+
+          algorithm = choose_algorithm(simulator, run_no, log:false)
+
+          experiment = Biopsy::Experiment.new(
+            simulator,
+            algorithm: algorithm,
+            verbosity: :silent,
+            id: run_no
+          )
+
+          results[run_no] = experiment.run
+          print run_no % 10 == 0 ? run_no : '.'
+
+        end
+
+        print "\n"
+
+        File.open('results.json', 'w') do |out|
+          out.write JSON.pretty_generate(results)
+        end
+
+        logger.info "Simulation finished"
+
+      end
+
+      logger.info "Results written to #{dirname}"
+
+    end # run_simulated
 
   end
 

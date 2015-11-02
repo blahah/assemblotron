@@ -35,11 +35,15 @@ module Assemblotron
 
     # Runs the program
     def run
+
       if @options[:list_assemblers]
         puts @assemblerman.list_assemblers
         return
       elsif @options[:install_assemblers]
         @assemblerman.install_assemblers(@options[:install_assemblers])
+        return
+      elsif @options[:simulate]
+        @assemblerman.run_simulated(@options[:simulate])
         return
       end
 

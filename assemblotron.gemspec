@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
 
   gem.add_dependency 'yell', '~> 2.0', '>= 2.0.4'
-  gem.add_dependency 'biopsy', '0.2.1'
+  gem.add_dependency 'biopsy', '0.3.0'
   gem.add_dependency 'trollop', '~> 2.0'
   gem.add_dependency 'transrate', '~> 1.0', '>= 1.0.1'
   gem.add_dependency 'fixwhich', '~> 1.0', '>= 1.0.2'

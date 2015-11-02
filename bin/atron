@@ -107,6 +107,8 @@ EOS
   opt :verbose, "Print extra information", :default => false
 
   opt :visualise, "Produce visualisations of the run", :default => false
+
+  opt :simulate, "Pre-calculated results for optimisation simulation. Each optimiser will be run 100 times.", :type => String
 end
 
 options = Trollop::with_standard_exception_handling parser do
