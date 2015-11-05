@@ -46,13 +46,13 @@ class IdbaTran
     idba_cmd << "-o . "            # output
     idba_cmd << "-r #{reads} "              # input
     idba_cmd << "--num_threads #{params[:threads]} " # number of threads
-    idba_cmd << "--mink 21 "                # minimum k value (<=124)
-    idba_cmd << "--maxk 77 "                # maximum k value (<=124)
-    idba_cmd << "--step 4 "                 # increment k
-    idba_cmd << "--min_count 1 "            # minimum multiplicity for filter
-    idba_cmd << "--no_correct "             # do not do correction
-    idba_cmd << "--max_isoforms 6 "         # maximum number of isoforms
-    idba_cmd << "--similar 0.98"            # similarity for alignment
+    idba_cmd << "--mink #{params[:mink]} "           # minimum k value (<=124)
+    idba_cmd << "--maxk #{params[:maxk]} "           # maximum k value (<=124)
+    idba_cmd << "--step #{params[:step]} "           # increment k
+    idba_cmd << "--min_count #{params[:min_count]} " # minimum multiplicity for filter
+    idba_cmd << "--no_correct "                      # do not do correction
+    idba_cmd << "--max_isoforms #{params[:max_isoforms]} " # max of isoforms
+    idba_cmd << "--similar #{params[:similar]}"      # similarity for alignment
     return idba_cmd
   end
 
