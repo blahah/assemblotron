@@ -248,7 +248,7 @@ EOS
       opts = @options.clone
       opts[:left] = opts[:left_subset]
       opts[:right] = opts[:right_subset]
-      algorithm = choose_algorithm assembler
+      algorithm = choose_algorithm(assembler, 0)
       exp = Biopsy::Experiment.new(assembler,
                                    options: opts,
                                    threads: @options[:threads],
