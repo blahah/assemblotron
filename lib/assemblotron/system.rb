@@ -3,7 +3,7 @@ module Assemblotron
   # A collection of methods for getting information about the
   # system on which Assemblotron is running. This information
   # is used when installing assemblers and for giving feedback
-  # to the user abou platform-specific limitations.
+  # to the user about platform-specific limitations.
   class System
 
     require 'rbconfig'
@@ -33,6 +33,19 @@ module Assemblotron
     # @return [Integer] 32 on a 32bit system, 64 on a 64bit system
     def self.wordsize
       ['a'].pack('P').length == 4 ? 32 : 64
+    end
+
+    def self.match? system
+      bit = "#{System.wordsize}bit".to_sym
+
+      if (system.key? bit)
+        # correct wordsize supported
+        if (system[bit].key? System.os)
+          # host OS supported
+          return true
+        end
+      end
+      false
     end
 
   end

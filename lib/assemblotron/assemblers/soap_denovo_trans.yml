@@ -62,6 +62,12 @@ parameters:
     opt: true
     min: 1
     max: 15
-binary:
-  linux:
+bindeps:
+  binaries:
+    - SOAPdenovo-Trans-127mer
+  version:
+    number: 'version 1.03'
+    command: 'SOAPdenovo-Trans-127mer'
+  url:
     64bit:
+      linux: https://github.com/cboursnell/SOAPdenovo-Trans/releases/download/1.03/SOAPdenovo_Trans_1.03.tar.gz

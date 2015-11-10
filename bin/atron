@@ -2,105 +2,121 @@
 
 require 'trollop'
 require 'assemblotron'
+require 'chronic_duration'
 
-controller = Assemblotron::Controller.new
+# path for auto-installed assemblers - only takes effect
+# for subshells of this process
+ENV['PATH'] = "#{ENV['HOME']}/.local/bin:#{ENV['PATH']}"
 
 # global option parsing
-SUB_COMMANDS = %w(list run) + controller.assemblers
 parser = Trollop::Parser.new do
   banner <<-EOS
 #{Assemblotron::Controller.header}
 
+An automated transcriptome assembly optimiser
+
 Usage:
-  atron [global options] [command] [command-specific options]
+  atron --left left.fq --right right.fq [options]
 
-Commands:
-list        - list the available assemblers
-run         - run optimisation for an assembler
-<assembler> - show options for assembler
-
-Global options:
+Options:
 EOS
-  
+  opt :left,
+      "Path to left reads (in FASTQ or gzipped FASTQ)",
+      :short => "-l",
+      :type => String
+
+  opt :right,
+      "Path to right reads (in FASTQ or gzipped FASTQ)",
+      :short => "-r",
+      :type => String
+
+  opt :insert_size,
+      "Mean insert size",
+      :default => 200
+
+  opt :insert_sd,
+      "Insert size standard deviation",
+      :default => 80
+
   opt :threads,
       "Number of threads to use",
       :short => "-t",
       :default => 4
+
   opt :memlimit,
       "Maximum amount of RAM to use in GB (note, not all assemblers " +
       "respect this setting)",
       :short => "-m",
       :default => 2
+
   opt :timelimit,
-      "Time limit for the optimisation in hours. If the " +
+      "Time limit for the optimisation. If the " +
       "run hasn't converged in this time, the best result " +
-      " achieved so far will be returned.",
-      :short => "-l",
+      "achieved so far will be returned. (e.g. 20h or 16m30s)",
       :default => nil,
-      :type => Float
-  opt :keep_intermediates,
-      "Keep intermediate files produced during during optimisation.",
-      :default => false
-  opt :gzip_intermediates,
-      "gzip intermediate files (onlys takes effect if " +
-      "--keep-intermediates is on)",
-      :default => false
+      :type => String
+
+  opt :subsample_size, "proportion of reads to use for optimisation",
+      :default => 0.1
+
+  opt :sampler, "which sampler to use (graph or stream)",
+      :default => 'stream'
+
+  opt :seed, "seed random number generator for subsampling " +
+             "(default current time)", :default => -1
+
+  opt :assemblers, "assemblers to use as comma separated list of names " +
+      "or shortnames - see --list-assemblers", :default => 'all'
+
+  opt :optimiser, "optimiser to use [tabu or sweep]", :default => 'tabu'
+
   opt :skip_subsample, "skip subsampling step", :default => false
+
   opt :skip_final, "skip final assembly step", :default => false
-  opt :subsample_size, "number of reads to use for optimisation",
-      :default => 100_000
-  opt :optimiser,
-      "Which optimiser to use. Possible: 'tabu' or 'sweeper'",
-      :type => String, 
-      :default => "tabu"
-  opt :only_assemble,
-      "If using parameter sweeper don't do any scoring, just run the assembler"
-  opt :logfile, "write logs to file", :type => String
+
   opt :output_parameters,
       "file to which optimal parameters will be written",
       :default => "optimal_parameters.json"
+
   opt :optimal_parameters,
       "JSON file containing optimal parameters to use. If " +
       "this option is chosen, Assemblotron skips to the final assembly",
       :type => String
+
+  opt :keep_intermediates,
+      "Keep intermediate files produced during during optimisation.",
+      :default => false
+
+  opt :gzip_intermediates,
+      "gzip intermediate files (onlys takes effect if " +
+      "--keep-intermediates is on)",
+      :default => false
+
+  opt :list_assemblers,
+      "print a list of the available assemblers"
+
+  opt :install_assemblers,
+      "install an assembler by name or shortname (use 'all' to install " +
+      "all available)",
+      :type => String
+
+  opt :logfile, "write logs to file", :type => String
+
   opt :quiet, "Don't print any logs", :default => false
-  opt :verbosity,
-      "How much extra information is printed [silent|quiet|loud]",
-      :type => String,
-      :default => "silent"
+
+  opt :verbose, "Print extra information", :default => false
+
   opt :visualise, "Produce visualisations of the run", :default => false
-  stop_on SUB_COMMANDS
 end
 
-global_opts = Trollop::with_standard_exception_handling parser do
-  result = parser.parse ARGV
+options = Trollop::with_standard_exception_handling parser do
   raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-  result
+  parser.parse ARGV
 end
 
-# subcommand parsing
-cmd = ARGV.shift
-assembler = nil
-assmebler_opts = nil
-if cmd.nil?
-  opts 
-elsif cmd == "list"
-  puts controller.list_assemblers
-  exit
-# elsif cmd == "run"
-#   assembler = ARGV.shift
-elsif controller.assemblers.include?(cmd)
-  assembler = cmd
-  assembler_parser = controller.parser_for_assembler cmd
-  assembler_opts = Trollop::with_standard_exception_handling assembler_parser do
-    raise Trollop::HelpNeeded if ARGV.empty? # show help screen
-    assembler_parser.parse ARGV
-  end
-else
-  abort "unknown subcommand #{cmd.inspect}"
+if !(options[:timelimit].nil?)
+  ChronicDuration.raise_exceptions = true
+  options[:timelimit] = ChronicDuration.parse(options[:timelimit]);
 end
 
-# run command
-controller.global_opts = global_opts
-controller.assembler_opts = assembler_opts
-controller.run assembler
+Assemblotron::Controller.new(options).run

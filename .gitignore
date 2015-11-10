@@ -22,4 +22,7 @@ doc/
 .Rproj.user
 
 # dry run test data
-dryruns
+dryrun*
+
+# backups
+\#*
