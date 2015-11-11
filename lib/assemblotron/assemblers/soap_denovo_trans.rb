@@ -23,6 +23,7 @@ class SoapDenovoTrans
   # @return [Transrate::Transrater] transrater object
   #   containing the assembly and its reference.
   def run params
+    params = self.include_defaults params
 
     run_soap params
 
@@ -94,7 +95,6 @@ class SoapDenovoTrans
   #
   # @return [String] the constructed command
   def construct_command params, config_path
-    params = self.include_defaults params
 
     cmd = "#{@path} all"
     # generic
