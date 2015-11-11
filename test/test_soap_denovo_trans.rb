@@ -15,7 +15,7 @@ class TestSoapDenovoTrans < Minitest::Test
         :insertsize => '200',
         :l => 'l.fq',
         :r => 'r.fq',
-        :path => 'SOAPdenovo-Trans',
+        :path => 'SOAPdenovo-Trans-127mer',
         :memory => 12,
         :threads => 8,
         :out => 1,
